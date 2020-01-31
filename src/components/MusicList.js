@@ -11,7 +11,7 @@ const MusicList = ({musicFiles}) => {
                     ? musicFiles.map((file,index)=>{
                         return <MusicFile key={`musicFile-${file}`} file={file}/>;
                     })
-                    : "No files added"
+                    : null
                 }
             </ul>
         </div>
