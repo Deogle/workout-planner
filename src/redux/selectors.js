@@ -1,0 +1,1 @@
+export const getMusicFiles = store => store.musicFiles;
