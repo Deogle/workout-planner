@@ -7,16 +7,20 @@ const initialState = {
 const app  = (state = initialState,action)=>{
     switch(action.type){
         case ADD_AUDIO:
-            return Object.assign({},state, {
-                musicFiles: [
-                    ...state.musicFiles,
-                    {
-                        filename: action.filename
-                    }
-                ]
-            })
+            //no duplicate audio, for now todo lol
+            let index = state.musicFiles.findIndex(val => val === action.filename);
+            if(index === -1)
+                return {
+                    ...state,
+                    musicFiles: state.musicFiles.concat(action.filename)
+                };
+            return state;
+            
         case REMOVE_AUDIO:
-            return state.filter(val=>val.filename !== action.filename);
+            return {
+                ...state,
+                musicFiles: state.musicFiles.filter((item,index)=>item !== action.filename)
+            }
         default:
             return state;
     }

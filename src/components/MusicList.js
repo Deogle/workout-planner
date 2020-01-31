@@ -9,7 +9,7 @@ const MusicList = ({musicFiles}) => {
             <ul>
                 { musicFiles && musicFiles.length
                     ? musicFiles.map((file,index)=>{
-                        return <MusicFile key={`musicFile-${file.filename}`} file={file}/>;
+                        return <MusicFile key={`musicFile-${file}`} file={file}/>;
                     })
                     : "No files added"
                 }

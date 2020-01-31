@@ -3,14 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './components/App';
 
-import { createStore } from 'redux';
+import {applyMiddleware, createStore} from 'redux';
 import app from './redux/reducers/reducer';
 import {Provider} from 'react-redux';
 
 import * as serviceWorker from './serviceWorker';
 
-const store = createStore(app)
-store.subscribe(() => console.log(store.getState()))
+//only add middleware during dev
+const middleware = process.env.NODE_ENV !== 'production' ?
+    [require('redux-immutable-state-invariant').default()] : []
+
+const store = createStore(app,applyMiddleware(...middleware));
+store.subscribe(()=>{});
 const rootEl = document.getElementById('root');
 const render = () => ReactDOM.render(
     <Provider store={store}>
