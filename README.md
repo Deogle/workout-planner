@@ -1,3 +1,6 @@
+# Workout Planner
+## Overview
+This is a supplemental tool for creating and managing music cued group workout classes.
 ## Available Scripts
 
 In the project directory, you can run:
@@ -21,3 +24,11 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 The build is minified and the filenames include the hashes.<br />
 Your app is ready to be deployed!
+
+## Resources for L E A R N I N G
+
+[Redux](https://redux.js.org/introduction/getting-started) <br/>
+[React](https://reactjs.org/docs/hello-world.html) <br/>
+[Jest testing cheat sheet](https://devhints.io/jest)
+
+
