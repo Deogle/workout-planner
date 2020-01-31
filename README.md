@@ -27,8 +27,14 @@ Your app is ready to be deployed!
 
 ## Resources for L E A R N I N G
 
-[Redux](https://redux.js.org/introduction/getting-started) <br/>
-[React](https://reactjs.org/docs/hello-world.html) <br/>
+Contribution info [here](https://github.com/firstcontributions/first-contributions)
+
+Learning and stuff
+
+[Redux](https://redux.js.org/introduction/getting-started)
+
+[React](https://reactjs.org/docs/hello-world.html)
+
 [Jest testing cheat sheet](https://devhints.io/jest)
 
 
