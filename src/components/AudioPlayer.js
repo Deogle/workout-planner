@@ -1,38 +1,69 @@
 import React from "react";
+import BufferLoader from "../util/BufferLoader";
 
-//TODO: we gotta
+//TODO: this class needs to be reduxed
 class AudioPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      play: false,
-      pause: true
+      playing: false,
+      tracks: [],
+      bufferList:null,
+      source:null
     };
-    this.url = "../../example_audio/low_fi_tune.mp3";
-    this.audio = new Audio(this.url);
   }
 
-  play = () => {
+  componentDidMount() {
+    this.audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    this.bufferLoader = new BufferLoader(
+      this.audioContext,
+      ["./example_audio/low_fi_tune.mp3"],
+      this.finishedLoading
+    );
+    this.bufferLoader.load();
+  }
+
+  finishedLoading = bufferList => {
+    console.log(bufferList)
     this.setState({
-      play: true,
-      pause: false
-    });
-    this.audio.play();
+      bufferList:bufferList
+    })
   };
 
-  pause = () => {
-      this.setState({
-          play:false,
-          pause:true
-      });
-      this.audio.pause()
-  }
+  playPause = () => {
+    if (this.audioContext.state === "suspended") {
+      this.audioContext.resume();
+    }
+    if (this.state.playing) {
+      this.setState(
+        {
+          playing: false
+        },
+        () => {
+          this.state.source.stop();
+        }
+      );
+    } else {
+      var source = this.audioContext.createBufferSource();
+      source.buffer = this.state.bufferList[0];
+      source.connect(this.audioContext.destination);    
+      this.setState(
+        {
+          playing: true,
+          source:source
+        }, () => {
+          source.start(0)
+        }
+      );
+      
+    }
+  };
 
   render() {
     return (
       <div>
-        <button onClick={this.play}>Play</button>
-        <button onClick={this.pause}>Pause</button>
+        <button onClick={this.playPause}>Play/Pause</button>
       </div>
     );
   }
