@@ -7,6 +7,7 @@ class AudioPlayer extends React.Component {
     super(props);
     this.state = {
       playing: false,
+      files: ['./example_audio/coffee_shop_tune.mp3','./example_audio/low_fi_tune.mp3'], /** Should probably contain more than just resource url */
       tracks: [],
       bufferList:null,
       source:null
@@ -16,12 +17,37 @@ class AudioPlayer extends React.Component {
   componentDidMount() {
     this.audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
-    this.bufferLoader = new BufferLoader(
-      this.audioContext,
-      ["./example_audio/low_fi_tune.mp3"],
-      this.finishedLoading
-    );
-    this.bufferLoader.load();
+    this.loadTracks();
+  }
+
+  /** This version of loadTracks uses the BufferLoader class and AudioBufferNodes */
+  // loadTracks = () => {
+  //   this.bufferLoader = new BufferLoader(
+  //     this.audioContext,
+  //     this.state.tracks,
+  //     this.finishedLoading
+  //   );
+  //   this.bufferLoader.load();
+  // }
+
+  /** 
+   * This version of loadTracks uses Audio elements and mediaElementSourceNodes
+   */
+  loadTracks = () => {
+    var tracks = []
+    for(var track of this.state.files){
+      var audioElement = new Audio(track);
+      audioElement.onended(()=>{
+        alert('track ended');
+      })
+      var src = this.audioContext.createMediaElementSource(audioElement);
+      src.connect(this.audioContext.destination);
+      tracks.push(audioElement);
+      
+    }
+    this.setState({
+      tracks:tracks
+    })
   }
 
   finishedLoading = bufferList => {
