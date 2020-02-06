@@ -12,14 +12,16 @@ class AudioPlayer extends React.Component {
       playing: false,
       buffLen: 0,
       files: [
-        "./example_audio/tick.mp3",
-        "./example_audio/coffee_shop_tune.mp3",
-        // "./example_audio/low_fi_tune.mp3"
+        // "./example_audio/tick.mp3",
+        // "./example_audio/coffee_shop_tune.mp3",
+        "./example_audio/low_fi_tune.mp3"
       ] /** this is just for debugging, these should be from redux store */,
       tracks: [],
       dataArrays: [],
       analysers: [],
       currTrack: 0,
+      percentTime: 0,
+      duration: 0,
       source: null,
       canvasCtx: null,
       playerCanvasCtx: null
@@ -95,9 +97,13 @@ class AudioPlayer extends React.Component {
     this.draw();
   }
 
-  loadPlayer = () => {
+  //TODO make this smoother
+  drawPlayer = () => {
+    requestAnimationFrame(this.drawPlayer);
     var playerCanvasCtx = this.state.playerCanvasCtx;
-    playerCanvasCtx.fillStyle = 'rgb(0,0,0)'
+
+    playerCanvasCtx.clearRect(0,0,this.WIDTH,100);
+    playerCanvasCtx.fillStyle = 'rgb(255,255,255)'
     playerCanvasCtx.fillRect(0,0,this.WIDTH,100);
 
     //draw the sound graph
@@ -108,21 +114,23 @@ class AudioPlayer extends React.Component {
     var timeline_width = this.HEIGHT*3;
     var timeline_height = 5;
 
-    playerCanvasCtx.fillStyle = 'rgb(200,250,250)'
+    playerCanvasCtx.fillStyle = 'rgb(200,200,200)'
     playerCanvasCtx.fillRect(timeline_start,timeline_end,timeline_width,timeline_height);
 
     //circle dimensions
-    var circle_x = 50;
+    //x positiion will be the percentage of timeline equal to percentage of song
+    var circle_x = 50 + (timeline_width*(this.state.percentTime));
     var circle_y = 50-2;
     var circle_radius = 10;
     var circle_startAngle = 0;
     var circle_endAngle = 2*Math.PI;
 
-    playerCanvasCtx.fillStyle = 'rgb(250,250,250)'
+    playerCanvasCtx.fillStyle = 'rgb(255,50,0)'
     playerCanvasCtx.beginPath();
     playerCanvasCtx.arc(circle_x,circle_y,circle_radius,circle_startAngle,circle_endAngle);
-    playerCanvasCtx.stroke();
     playerCanvasCtx.fill();
+    playerCanvasCtx.closePath();
+
 
   }
 
@@ -186,8 +194,11 @@ class AudioPlayer extends React.Component {
 
   // TODO: Testing
   getCurrentTime = () => {
+    var track = this.state.tracks[this.state.currTrack];
     this.setState({
-      curr_time: this.state.tracks[this.state.currTrack].currentTime
+      curr_time: track.currentTime,
+      duration:Math.floor(track.duration),
+      percentTime: (track.currentTime/track.duration)
     })
   }
 
@@ -196,23 +207,17 @@ class AudioPlayer extends React.Component {
       this.loadGraph();
     }
     if(this.state.playerCanvasCtx){
-      this.loadPlayer();
+      this.drawPlayer();
     }
 
-    var duration;
-    if (this.state.tracks.length > 0) {
-      duration = Math.floor(this.state.tracks[this.state.currTrack].duration);
-      if (Number.isNaN(duration)) {
-        duration = 0;
-      }
-    }
+    var duration = this.state.duration;
 
     return (
       <div>
         <button onClick={this.playPause}>Play/Pause</button>
         {/* This should probably be cleaner / refactored to not be 500iq */}
         <p>Current song: {this.state.files[this.state.currTrack].split('/')[2].split('.mp3')[0]}</p>
-        <p>Duration {Math.floor(this.state.curr_time) || 0}/{duration}</p>
+        <p>Duration {Math.floor(this.state.curr_time) || 0}/{duration} = {this.state.percentTime}</p>
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
         <br />
         <canvas ref="player_canvas" width={this.WIDTH} height={100} />
