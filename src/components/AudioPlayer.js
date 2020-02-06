@@ -105,7 +105,7 @@ class AudioPlayer extends React.Component {
     var playerCanvasCtx = this.state.playerCanvasCtx;
 
     playerCanvasCtx.clearRect(0, 0, this.WIDTH, 100);
-    playerCanvasCtx.fillStyle = "rgb(255,255,255)";
+    playerCanvasCtx.fillStyle = "rgb(250,250,250)";
     playerCanvasCtx.fillRect(0, 0, this.WIDTH, 100);
 
     //draw the sound graph
@@ -163,6 +163,47 @@ class AudioPlayer extends React.Component {
       53
     );
   };
+
+  seekOnClick = e => {
+    e.preventDefault();
+
+    const playerCanvas = this.refs.player_canvas;
+    //timeline dimensions
+    var timeline_x = 50;
+    var timeline_y = 50 - 5;
+    var timeline_width = this.HEIGHT * 3;
+    var timeline_height = 5;
+
+    //adjust this value to allow less precise clicking
+    //measured in pixels
+    var tolerance = 10;
+
+    var x = e.pageX - playerCanvas.offsetLeft;
+    var y = e.pageY - playerCanvas.offsetTop;
+
+    if (
+      y > (timeline_y-tolerance) &&
+      y < (timeline_y) + (timeline_height+tolerance) &&
+      x > timeline_x &&
+      x < timeline_x + timeline_width
+    ) {
+      //seek to percentage of track based on percentage x is of total timeline length
+      var percentageTimeline = x-timeline_x;
+      percentageTimeline = percentageTimeline/(timeline_width);
+
+      console.log(`clicked timeline! setting to ${percentageTimeline} percent of song`);
+      this.seekTrack(percentageTimeline);
+    }
+
+    console.log(`Clicked!: X:${x} Y:${y} `);
+  };
+
+  seekTrack = percentTime => {
+    var track = this.state.tracks[this.state.currTrack];
+    if(track){
+      track.currentTime = (percentTime * track.duration);
+    }
+  }
 
   formatTime = timeInSeconds => {
     var timeStr;
@@ -252,21 +293,26 @@ class AudioPlayer extends React.Component {
         <button onClick={this.playPause}>Play/Pause</button>
         <br />
         {/* This should probably be cleaner / refactored to not be 500iq */}
-        {/* <p>
+        <p>
           Current song:{" "}
           {
             this.state.files[this.state.currTrack]
               .split("/")[2]
               .split(".mp3")[0]
           }
-        </p> */}
+        </p>
         {/* <p>
           Duration {Math.floor(this.state.curr_time) || 0}/{duration} ={" "}
           {this.state.percentTime}
         </p> */}
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
         <br />
-        <canvas ref="player_canvas" width={this.WIDTH} height={100} />
+        <canvas
+          onClick={this.seekOnClick}
+          ref="player_canvas"
+          width={this.WIDTH}
+          height={100}
+        />
       </div>
     );
   }
