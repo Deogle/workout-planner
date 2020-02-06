@@ -99,6 +99,31 @@ class AudioPlayer extends React.Component {
     var playerCanvasCtx = this.state.playerCanvasCtx;
     playerCanvasCtx.fillStyle = 'rgb(0,0,0)'
     playerCanvasCtx.fillRect(0,0,this.WIDTH,100);
+
+    //draw the sound graph
+
+    //timeline dimensions
+    var timeline_start = 50;
+    var timeline_end = 50-5;
+    var timeline_width = this.HEIGHT*3;
+    var timeline_height = 5;
+
+    playerCanvasCtx.fillStyle = 'rgb(200,250,250)'
+    playerCanvasCtx.fillRect(timeline_start,timeline_end,timeline_width,timeline_height);
+
+    //circle dimensions
+    var circle_x = 50;
+    var circle_y = 50-2;
+    var circle_radius = 10;
+    var circle_startAngle = 0;
+    var circle_endAngle = 2*Math.PI;
+
+    playerCanvasCtx.fillStyle = 'rgb(250,250,250)'
+    playerCanvasCtx.beginPath();
+    playerCanvasCtx.arc(circle_x,circle_y,circle_radius,circle_startAngle,circle_endAngle);
+    playerCanvasCtx.stroke();
+    playerCanvasCtx.fill();
+
   }
 
   draw = () => {
