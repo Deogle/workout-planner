@@ -8,8 +8,6 @@ class AudioPlayer extends React.Component {
     this.WIDTH = 640;
     this.HEIGHT = 180;
 
-    this.canvasCtx = null;
-
     this.state = {
       playing: false,
       buffLen: 0,
@@ -21,9 +19,10 @@ class AudioPlayer extends React.Component {
       tracks: [],
       dataArrays: [],
       analysers: [],
-      curr_track: 0,
+      currTrack: 0,
       source: null,
-      canvasCtx: null
+      canvasCtx: null,
+      playerCanvasCtx: null
     };
   }
 
@@ -34,10 +33,13 @@ class AudioPlayer extends React.Component {
       window.webkitAudioContext)();
 
     const canvas = this.refs.canvas;
+    const playerCanvas = this.refs.player_canvas;
+    const playerCanvasCtx =playerCanvas.getContext("2d");
     const ctx = canvas.getContext("2d");
 
     this.setState({
-      canvasCtx: ctx
+      canvasCtx: ctx,
+      playerCanvasCtx: playerCanvasCtx
     }, () => {
       this.loadTracks();
     })
@@ -50,7 +52,7 @@ class AudioPlayer extends React.Component {
     var dataArrays = [];
     for (var track of this.state.files) {
       var audioElement = new Audio(track);
-      
+
       audioElement.onended = () => {
         this.playNextTrack();
       };
@@ -93,12 +95,20 @@ class AudioPlayer extends React.Component {
     this.draw();
   }
 
+  loadPlayer = () => {
+    var playerCanvasCtx = this.state.playerCanvasCtx;
+    playerCanvasCtx.fillStyle = 'rgb(0,0,0)'
+    playerCanvasCtx.fillRect(0,0,this.WIDTH,100);
+  }
+
   draw = () => {
 
-    requestAnimationFrame(this.draw);
+    if(this.state.playing === true){
+      requestAnimationFrame(this.draw);
+    }
 
-    var analyser = this.state.analysers[this.state.curr_track];
-    var dataArray = this.state.dataArrays[this.state.curr_track];
+    var analyser = this.state.analysers[this.state.currTrack];
+    var dataArray = this.state.dataArrays[this.state.currTrack];
     var bufferLen = this.state.buffLen;
 
     if (!analyser) {
@@ -107,18 +117,15 @@ class AudioPlayer extends React.Component {
 
     analyser.getFloatFrequencyData(dataArray);
     var canvasCtx = this.state.canvasCtx;
-    canvasCtx.fillStyle = 'rgb(0,0,0)';
+    canvasCtx.fillStyle = 'rgb(255,255,255)';
     canvasCtx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
     var barWidth = (this.WIDTH / bufferLen) * 2.5;
     var barHeight;
     var x = 0;
     for (var i = 0; i < bufferLen; i++) {
-      barHeight = (dataArray[i] / 2) * 2;
-      if(this.state.playing === false){
-        barHeight = 0;
-      }
-      canvasCtx.fillStyle = 'rgb(' + (Math.abs(barHeight) + 100) + ',50,50)';
+      barHeight = (dataArray[i] / 2) * 2.5;
+      canvasCtx.fillStyle = 'rgb(' + (Math.abs(barHeight*1.5) + 50) + ',50,50)';
       canvasCtx.fillRect(x, this.HEIGHT - barHeight / 2, barWidth, barHeight);
 
       x += barWidth + 1;
@@ -130,11 +137,11 @@ class AudioPlayer extends React.Component {
   playPause = () => {
     if (this.state.playing) {
       this.setState({ playing: false }, () => {
-        this.state.tracks[this.state.curr_track].pause();
+        this.state.tracks[this.state.currTrack].pause();
       });
     } else {
       this.setState({ playing: true }, () => {
-        this.state.tracks[this.state.curr_track].play();
+        this.state.tracks[this.state.currTrack].play();
       });
     }
   };
@@ -143,31 +150,34 @@ class AudioPlayer extends React.Component {
   playNextTrack = () => {
     this.setState(
       {
-        curr_track: this.state.curr_track + 1
+        currTrack: this.state.currTrack + 1
       },
       () => {
-        console.log(this.state.tracks[this.state.curr_track])
-        this.state.tracks[this.state.curr_track].play();
+        console.log(this.state.tracks[this.state.currTrack])
+        this.state.tracks[this.state.currTrack].play();
       }
     );
   };
 
   // TODO: Testing
-  getCurrentTime = () =>{
-   this.setState({
-     curr_time: this.state.tracks[this.state.curr_track].currentTime
-   })
+  getCurrentTime = () => {
+    this.setState({
+      curr_time: this.state.tracks[this.state.currTrack].currentTime
+    })
   }
 
   render() {
     if (this.state.canvasCtx) {
       this.loadGraph();
     }
+    if(this.state.playerCanvasCtx){
+      this.loadPlayer();
+    }
 
     var duration;
-    if(this.state.tracks.length > 0){
-      duration = Math.floor(this.state.tracks[this.state.curr_track].duration);
-      if(Number.isNaN(duration)){
+    if (this.state.tracks.length > 0) {
+      duration = Math.floor(this.state.tracks[this.state.currTrack].duration);
+      if (Number.isNaN(duration)) {
         duration = 0;
       }
     }
@@ -176,10 +186,11 @@ class AudioPlayer extends React.Component {
       <div>
         <button onClick={this.playPause}>Play/Pause</button>
         {/* This should probably be cleaner / refactored to not be 500iq */}
-        <p>Current song: {this.state.files[this.state.curr_track].split('/')[2]}</p>
-        {/* Also stupid */}
+        <p>Current song: {this.state.files[this.state.currTrack].split('/')[2].split('.mp3')[0]}</p>
         <p>Duration {Math.floor(this.state.curr_time) || 0}/{duration}</p>
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
+        <br />
+        <canvas ref="player_canvas" width={this.WIDTH} height={100} />
       </div>
     );
   }
