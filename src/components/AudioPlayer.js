@@ -157,7 +157,11 @@ class AudioPlayer extends React.Component {
     }
 
     playerCanvasCtx.fillText(formattedCurrentTime, 10, 53);
-    playerCanvasCtx.fillText(this.formatTime(this.state.duration), this.WIDTH - 40, 53);
+    playerCanvasCtx.fillText(
+      this.formatTime(this.state.duration),
+      this.WIDTH - 40,
+      53
+    );
   };
 
   formatTime = timeInSeconds => {
@@ -243,13 +247,10 @@ class AudioPlayer extends React.Component {
     if (this.state.playerCanvasCtx) {
       this.drawPlayer();
     }
-
-    var duration = this.state.duration;
-
     return (
       <div>
         <button onClick={this.playPause}>Play/Pause</button>
-        <br/>
+        <br />
         {/* This should probably be cleaner / refactored to not be 500iq */}
         {/* <p>
           Current song:{" "}
@@ -263,7 +264,7 @@ class AudioPlayer extends React.Component {
           Duration {Math.floor(this.state.curr_time) || 0}/{duration} ={" "}
           {this.state.percentTime}
         </p> */}
-        <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT*.8} />
+        <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
         <br />
         <canvas ref="player_canvas" width={this.WIDTH} height={100} />
       </div>
