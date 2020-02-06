@@ -50,9 +50,15 @@ class AudioPlayer extends React.Component {
     var dataArrays = [];
     for (var track of this.state.files) {
       var audioElement = new Audio(track);
+      
       audioElement.onended = () => {
         this.playNextTrack();
       };
+
+      audioElement.ontimeupdate = () => {
+        this.getCurrentTime();
+      }
+
       var src = this.audioContext.createMediaElementSource(audioElement);
       var analyser = this.audioContext.createAnalyser();
 
@@ -62,6 +68,10 @@ class AudioPlayer extends React.Component {
       tracks.push(audioElement);
 
       analyser.fftSize = 256;
+      analyser.minDecibels = -90;
+      analyser.maxDecibels = -10;
+      analyser.smoothingTimeConstant = 0.99;
+
       var buffLen = analyser.frequencyBinCount;
       var dataArray = new Float32Array(buffLen);
 
@@ -84,13 +94,14 @@ class AudioPlayer extends React.Component {
   }
 
   draw = () => {
+
     requestAnimationFrame(this.draw);
 
     var analyser = this.state.analysers[this.state.curr_track];
     var dataArray = this.state.dataArrays[this.state.curr_track];
     var bufferLen = this.state.buffLen;
 
-    if(!analyser){
+    if (!analyser) {
       return;
     }
 
@@ -102,10 +113,12 @@ class AudioPlayer extends React.Component {
     var barWidth = (this.WIDTH / bufferLen) * 2.5;
     var barHeight;
     var x = 0;
-    console.log('drawing');
     for (var i = 0; i < bufferLen; i++) {
       barHeight = (dataArray[i] / 2) * 2;
-      canvasCtx.fillStyle = 'rgb(' + (barHeight + 100 * 2) + ',50,50)';
+      if(this.state.playing === false){
+        barHeight = 0;
+      }
+      canvasCtx.fillStyle = 'rgb(' + (Math.abs(barHeight) + 100) + ',50,50)';
       canvasCtx.fillRect(x, this.HEIGHT - barHeight / 2, barWidth, barHeight);
 
       x += barWidth + 1;
@@ -139,17 +152,33 @@ class AudioPlayer extends React.Component {
     );
   };
 
+  // TODO: Testing
+  getCurrentTime = () =>{
+   this.setState({
+     curr_time: this.state.tracks[this.state.curr_track].currentTime
+   })
+  }
+
   render() {
-    if(this.state.canvasCtx){
+    if (this.state.canvasCtx) {
       this.loadGraph();
     }
+
+    var duration;
+    if(this.state.tracks.length > 0){
+      duration = Math.floor(this.state.tracks[this.state.curr_track].duration);
+      if(Number.isNaN(duration)){
+        duration = 0;
+      }
+    }
+
     return (
       <div>
         <button onClick={this.playPause}>Play/Pause</button>
         {/* This should probably be cleaner / refactored to not be 500iq */}
         <p>Current song: {this.state.files[this.state.curr_track].split('/')[2]}</p>
         {/* Also stupid */}
-        <p>Duration {this.state.tracks.length > 0 ? this.state.tracks[this.state.curr_track].duration : null}</p>
+        <p>Duration {Math.floor(this.state.curr_time) || 0}/{duration}</p>
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
       </div>
     );
