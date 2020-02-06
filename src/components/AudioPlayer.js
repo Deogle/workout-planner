@@ -6,7 +6,7 @@ class AudioPlayer extends React.Component {
     super(props);
 
     this.WIDTH = 640;
-    this.HEIGHT = 425;
+    this.HEIGHT = 180;
 
     this.canvasCtx = null;
 
@@ -104,8 +104,8 @@ class AudioPlayer extends React.Component {
     var x = 0;
     console.log('drawing');
     for (var i = 0; i < bufferLen; i++) {
-      barHeight = (dataArray[i] / 2) * 5;
-      canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+      barHeight = (dataArray[i] / 2) * 2;
+      canvasCtx.fillStyle = 'rgb(' + (barHeight + 100 * 2) + ',50,50)';
       canvasCtx.fillRect(x, this.HEIGHT - barHeight / 2, barWidth, barHeight);
 
       x += barWidth + 1;
