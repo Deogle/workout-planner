@@ -247,6 +247,13 @@ class AudioPlayer extends React.Component {
 
   // TODO: Testing
   playPause = () => {
+
+    if(this.audioContext.state === "suspended"){
+      this.audioContext.resume().then(()=>{
+        this.playPause();
+        return;
+      })
+    }
     if (this.state.playing) {
       this.setState({ playing: false }, () => {
         this.state.tracks[this.state.currTrack].pause();
