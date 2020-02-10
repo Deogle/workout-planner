@@ -250,7 +250,6 @@ class AudioPlayer extends React.Component {
 
     if(this.audioContext.state === "suspended"){
       this.audioContext.resume().then(()=>{
-        this.playPause();
         return;
       })
     }
