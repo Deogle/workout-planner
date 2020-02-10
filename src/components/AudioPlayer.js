@@ -273,7 +273,17 @@ class AudioPlayer extends React.Component {
       },
       () => {
         console.log(this.state.tracks[this.state.currTrack]);
-        this.state.tracks[this.state.currTrack].play();
+        if (this.state.tracks[this.state.currTrack] !== undefined) {
+          this.state.tracks[this.state.currTrack].play();
+        }else {
+          this.setState(
+            {
+              currTrack: 0
+            }, () => {
+              this.state.tracks[this.state.currTrack].play();
+            }
+          );
+        }
       }
     );
   };
@@ -303,15 +313,12 @@ class AudioPlayer extends React.Component {
         <p>
           Current song:{" "}
           {
-            this.state.files[this.state.currTrack]
-              .split("/")[2]
-              .split(".mp3")[0]
+            this.state.files[this.state.currTrack] !== undefined ? this.state.files[this.state.currTrack]
+            .split("/")[2]
+            .split(".mp3")[0]
+            : ""
           }
         </p>
-        {/* <p>
-          Duration {Math.floor(this.state.curr_time) || 0}/{duration} ={" "}
-          {this.state.percentTime}
-        </p> */}
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
         <br />
         <canvas
