@@ -7,19 +7,18 @@ const initialState = {
 const app  = (state = initialState,action)=>{
     switch(action.type){
         case ADD_AUDIO:
-            //no duplicate audio, for now todo lol
-            let index = state.musicFiles.findIndex(val => val === action.filename);
+            let index = state.musicFiles.findIndex(val => val.filename === action.filename);
             if(index === -1)
                 return {
                     ...state,
-                    musicFiles: state.musicFiles.concat(action.filename)
+                    musicFiles: state.musicFiles.concat({filename:action.filename,resource_url:action.resource_url})
                 };
             return state;
             
         case REMOVE_AUDIO:
             return {
                 ...state,
-                musicFiles: state.musicFiles.filter((item,index)=>item !== action.filename)
+                musicFiles: state.musicFiles.filter((item,index)=>item.filename !== action.filename)
             }
         default:
             return state;

@@ -2,49 +2,53 @@ import reducer from '../redux/reducers/reducer'
 import * as actions from '../redux/actions'
 
 describe('audio reducer', () => {
-    it('should return the initial state',()=>{
-        expect(reducer(undefined,{})).toEqual(
+    it('should return the initial state', () => {
+        expect(reducer(undefined, {})).toEqual(
             {
-                "musicFiles":[]
+                "musicFiles": []
             }
         )
     })
 
-    it('should handle ADD_AUDIO',() => {
+    const file = { filename: 'test.mp3', resource_url: 'https://example.url/test.mp3' }
+
+    it('should handle ADD_AUDIO', () => {
         expect(
-            reducer({"musicFiles":[]},{
-                type:actions.ADD_AUDIO,
-                filename:"test.mp3"
+            reducer({ "musicFiles": [] }, {
+                type: actions.ADD_AUDIO,
+                filename: file.filename,
+                resource_url: file.resource_url
             })
         ).toEqual(
             {
-                "musicFiles":["test.mp3"]
+                "musicFiles": [file]
             }
         )
     })
 
-    it('should handle REMOVE_AUDIO',()=>{
+    it('should handle REMOVE_AUDIO', () => {
         expect(
-            reducer({"musicFiles":["test.mp3"]},{
-                type:actions.REMOVE_AUDIO,
-                filename:"test.mp3"
+            reducer({ "musicFiles": [file] }, {
+                type: actions.REMOVE_AUDIO,
+                filename: "test.mp3"
             })
         ).toEqual(
             {
-                "musicFiles":[]
+                "musicFiles": []
             }
         )
     })
 
-    it('should fail to add duplicate audio file',()=>{
+    it('should fail to add duplicate audio file', () => {
         expect(
-            reducer({"musicFiles":["test.mp3"]},{
-                type:actions.ADD_AUDIO,
-                filename:"test.mp3"
+            reducer({ "musicFiles": [file] }, {
+                type: actions.ADD_AUDIO,
+                filename: "test.mp3",
+                resource_url: "https://example.url/test.mp3"
             })
         ).toEqual(
             {
-                "musicFiles":["test.mp3"]
+                "musicFiles": [file]
             }
         )
     })

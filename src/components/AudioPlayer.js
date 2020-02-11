@@ -1,10 +1,11 @@
 import React from "react";
+import { connect } from "react-redux";
+import { getMusicFiles } from "../redux/selectors";
 
 //TODO: this class needs to be reduxed
 class AudioPlayer extends React.Component {
   constructor(props) {
     super(props);
-
     this.WIDTH = 640;
     this.HEIGHT = 180;
 
@@ -28,8 +29,7 @@ class AudioPlayer extends React.Component {
     };
   }
 
-  // Probably don't need to load tracks on start, maybe on first click of
-  // the play/pause button. This interface will eventually be scrapped anyways.
+  //Load tracks and add canvases contexts to state
   componentDidMount() {
     this.audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
@@ -50,13 +50,21 @@ class AudioPlayer extends React.Component {
     );
   }
 
+  //Check if there has been a change in the redux store, if so, update component state
+  componentDidUpdate() {
+    if(this.state.tracks.length !== this.props.musicFiles.length){
+      this.loadTracks();
+    }
+  }
+
   // TODO HIGH PRIORITY: testing
   loadTracks = () => {
     var tracks = [];
     var analysers = [];
     var dataArrays = [];
-    for (var track of this.state.files) {
-      var audioElement = new Audio(track);
+    //load tracks
+    for (var track of this.props.musicFiles) {
+      var audioElement = new Audio(track.resource_url);
 
       audioElement.onended = () => {
         this.playNextTrack();
@@ -182,14 +190,14 @@ class AudioPlayer extends React.Component {
     var y = e.pageY - playerCanvas.offsetTop;
 
     if (
-      y > (timeline_y-tolerance) &&
-      y < (timeline_y) + (timeline_height+tolerance) &&
+      y > (timeline_y - tolerance) &&
+      y < (timeline_y) + (timeline_height + tolerance) &&
       x > timeline_x &&
       x < timeline_x + timeline_width
     ) {
       //seek to percentage of track based on percentage x is of total timeline length
-      var percentageTimeline = x-timeline_x;
-      percentageTimeline = percentageTimeline/(timeline_width);
+      var percentageTimeline = x - timeline_x;
+      percentageTimeline = percentageTimeline / (timeline_width);
 
       console.log(`clicked timeline! setting to ${percentageTimeline} percent of song`);
       this.seekTrack(percentageTimeline);
@@ -200,7 +208,7 @@ class AudioPlayer extends React.Component {
 
   seekTrack = percentTime => {
     var track = this.state.tracks[this.state.currTrack];
-    if(track){
+    if (track) {
       track.currentTime = (percentTime * track.duration);
     }
   }
@@ -247,9 +255,11 @@ class AudioPlayer extends React.Component {
 
   // TODO: Testing
   playPause = () => {
-
-    if(this.audioContext.state === "suspended"){
-      this.audioContext.resume().then(()=>{
+    if(this.props.musicFiles[this.state.currTrack] === undefined){
+      return;
+    }
+    if (this.audioContext.state === "suspended") {
+      this.audioContext.resume().then(() => {
         return;
       })
     }
@@ -274,7 +284,7 @@ class AudioPlayer extends React.Component {
         console.log(this.state.tracks[this.state.currTrack]);
         if (this.state.tracks[this.state.currTrack] !== undefined) {
           this.state.tracks[this.state.currTrack].play();
-        }else {
+        } else {
           this.setState(
             {
               currTrack: 0
@@ -287,7 +297,6 @@ class AudioPlayer extends React.Component {
     );
   };
 
-  // TODO: Testing
   getCurrentTime = () => {
     var track = this.state.tracks[this.state.currTrack];
     this.setState({
@@ -312,10 +321,8 @@ class AudioPlayer extends React.Component {
         <p>
           Current song:{" "}
           {
-            this.state.files[this.state.currTrack] !== undefined ? this.state.files[this.state.currTrack]
-            .split("/")[2]
-            .split(".mp3")[0]
-            : ""
+            this.props.musicFiles[this.state.currTrack] !== undefined ? this.props.musicFiles[this.state.currTrack].filename
+              : ""
           }
         </p>
         <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
@@ -331,4 +338,9 @@ class AudioPlayer extends React.Component {
   }
 }
 
-export default AudioPlayer;
+const mapStateToProps = state => {
+  const musicFiles = getMusicFiles(state);
+  return { musicFiles };
+}
+
+export default connect(mapStateToProps)(AudioPlayer);
