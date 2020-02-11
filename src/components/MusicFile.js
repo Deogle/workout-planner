@@ -2,7 +2,7 @@ import React from 'react'
 
 const MusicFile = props => (
     <li>
-        <span>{props.file}</span>
+        <span>{props.file.filename}</span>
     </li>
 )
 

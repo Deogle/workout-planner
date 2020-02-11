@@ -13,7 +13,14 @@ class MusicFileInput extends React.Component{
     handleUpload = e => {
         e.preventDefault();
         if(this.state.file){
-            this.props.addAudio(this.state.file.current.files[0].name);
+            this.props.addAudio(this.createAudio(this.state.file.current.files[0]));
+        }
+    }
+
+    createAudio = file => {
+        return {
+            filename:file.name,
+            resource_url:`./example_audio/${file.name}`
         }
     }
     
