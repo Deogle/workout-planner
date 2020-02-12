@@ -57,12 +57,12 @@ class AudioPlayer extends React.Component {
     }
   }
 
-  // TODO HIGH PRIORITY: testing
   loadTracks = () => {
     var tracks = [];
     var analysers = [];
     var dataArrays = [];
     //load tracks
+    console.log(this.props.musicFiles);
     for (var track of this.props.musicFiles) {
       var audioElement = new Audio(track.resource_url);
 
@@ -253,7 +253,6 @@ class AudioPlayer extends React.Component {
     }
   };
 
-  // TODO: Testing
   playPause = () => {
     if(this.props.musicFiles[this.state.currTrack] === undefined){
       return;
@@ -264,38 +263,56 @@ class AudioPlayer extends React.Component {
       })
     }
     if (this.state.playing) {
-      this.setState({ playing: false }, () => {
-        this.state.tracks[this.state.currTrack].pause();
-      });
+      this.pauseTrack(this.state.tracks[this.state.currTrack]);
     } else {
-      this.setState({ playing: true }, () => {
-        this.state.tracks[this.state.currTrack].play();
-      });
+      this.playTrack(this.state.tracks[this.state.currTrack]);
     }
   };
 
-  // TODO: Testing
   playNextTrack = () => {
     this.setState(
       {
         currTrack: this.state.currTrack + 1
       },
       () => {
-        console.log(this.state.tracks[this.state.currTrack]);
         if (this.state.tracks[this.state.currTrack] !== undefined) {
-          this.state.tracks[this.state.currTrack].play();
+          this.playTrack(this.state.tracks[this.state.currTrack]);
         } else {
           this.setState(
             {
               currTrack: 0
             }, () => {
-              this.state.tracks[this.state.currTrack].play();
+              this.playTrack(this.state.tracks[this.state.currTrack]);
             }
           );
         }
       }
     );
   };
+
+
+  playTrack = track => {
+    var trackMetadata = this.props.musicFiles[this.state.currTrack];
+    
+    if(track.currentTime === 0){
+      console.log(`Starting track ${trackMetadata.filename} at time ${trackMetadata.start_time}`)
+      track.currentTime = trackMetadata.start_time;
+    } else {
+      console.log(`Resuming track ${trackMetadata.filename} at time ${track.currentTime}`)
+    }
+
+    this.setState({ playing: true }, () => {
+      track.play();
+    });
+  }
+
+  pauseTrack = track => {
+    var trackMetadata = this.props.musicFiles[this.state.currTrack];
+    console.log(`Stoping track ${trackMetadata.filename} at time ${track.currentTime}`)
+    this.setState({ playing: false }, () => {
+      track.pause();
+    });
+  }
 
   getCurrentTime = () => {
     var track = this.state.tracks[this.state.currTrack];

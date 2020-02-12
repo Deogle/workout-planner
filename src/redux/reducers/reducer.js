@@ -4,21 +4,26 @@ const initialState = {
     musicFiles: []
 }
 
-const app  = (state = initialState,action)=>{
-    switch(action.type){
+const app = (state = initialState, action) => {
+    switch (action.type) {
         case ADD_AUDIO:
             let index = state.musicFiles.findIndex(val => val.filename === action.filename);
-            if(index === -1)
+            if (index === -1)
                 return {
                     ...state,
-                    musicFiles: state.musicFiles.concat({filename:action.filename,resource_url:action.resource_url})
+                    musicFiles: state.musicFiles.concat({
+                        filename: action.filename,
+                        resource_url: action.resource_url,
+                        start_time: action.start_time,
+                        end_time: action.end_time
+                    })
                 };
             return state;
-            
+
         case REMOVE_AUDIO:
             return {
                 ...state,
-                musicFiles: state.musicFiles.filter((item,index)=>item.filename !== action.filename)
+                musicFiles: state.musicFiles.filter((item, index) => item.filename !== action.filename)
             }
         default:
             return state;
