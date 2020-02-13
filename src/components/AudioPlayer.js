@@ -52,7 +52,7 @@ class AudioPlayer extends React.Component {
 
   //Check if there has been a change in the redux store, if so, update component state
   componentDidUpdate() {
-    if(this.state.tracks.length !== this.props.musicFiles.length){
+    if (this.state.tracks.length !== this.props.musicFiles.length) {
       this.loadTracks();
     }
   }
@@ -254,7 +254,7 @@ class AudioPlayer extends React.Component {
   };
 
   playPause = () => {
-    if(this.props.musicFiles[this.state.currTrack] === undefined){
+    if (this.props.musicFiles[this.state.currTrack] === undefined) {
       return;
     }
     if (this.audioContext.state === "suspended") {
@@ -263,9 +263,9 @@ class AudioPlayer extends React.Component {
       })
     }
     if (this.state.playing) {
-      this.pauseTrack(this.state.tracks[this.state.currTrack]);
+      this.pauseTrack();
     } else {
-      this.playTrack(this.state.tracks[this.state.currTrack]);
+      this.playTrack();
     }
   };
 
@@ -276,13 +276,14 @@ class AudioPlayer extends React.Component {
       },
       () => {
         if (this.state.tracks[this.state.currTrack] !== undefined) {
-          this.playTrack(this.state.tracks[this.state.currTrack]);
+          this.playTrack();
         } else {
           this.setState(
             {
-              currTrack: 0
+              currTrack: 0,
+              percentTime: 0
             }, () => {
-              this.playTrack(this.state.tracks[this.state.currTrack]);
+              this.playTrack();
             }
           );
         }
@@ -291,14 +292,18 @@ class AudioPlayer extends React.Component {
   };
 
 
-  playTrack = track => {
+  playTrack = () => {
+    var track = this.state.tracks[this.state.currTrack]
     var trackMetadata = this.props.musicFiles[this.state.currTrack];
-    
-    if(track.currentTime === 0){
-      console.log(`Starting track ${trackMetadata.filename} at time ${trackMetadata.start_time}`)
+
+    if (track.currentTime === 0 || track.currentTime === trackMetadata.start_time) {
+      console.log(`Starting track ${trackMetadata.filename} at time ${trackMetadata.start_time}`);
       track.currentTime = trackMetadata.start_time;
+    } else if (track.currentTime !== track.duration) {
+      console.log(`Resuming track ${trackMetadata.filename} at time ${track.currentTime}`);
     } else {
-      console.log(`Resuming track ${trackMetadata.filename} at time ${track.currentTime}`)
+      console.log(`Restarting track ${trackMetadata.filename} at time ${trackMetadata.start_time}`);
+      track.currentTime = trackMetadata.start_time;
     }
 
     this.setState({ playing: true }, () => {
@@ -306,7 +311,8 @@ class AudioPlayer extends React.Component {
     });
   }
 
-  pauseTrack = track => {
+  pauseTrack = () => {
+    var track = this.state.tracks[this.state.currTrack]
     var trackMetadata = this.props.musicFiles[this.state.currTrack];
     console.log(`Stoping track ${trackMetadata.filename} at time ${track.currentTime}`)
     this.setState({ playing: false }, () => {
@@ -316,12 +322,43 @@ class AudioPlayer extends React.Component {
 
   getCurrentTime = () => {
     var track = this.state.tracks[this.state.currTrack];
-    this.setState({
-      curr_time: track.currentTime,
-      duration: Math.floor(track.duration),
-      percentTime: track.currentTime / track.duration
-    });
+    var trackMetadata = this.props.musicFiles[this.state.currTrack];
+    //check if current time is the set end of the track
+    if(track.currentTime >= trackMetadata.end_time){
+      console.log(`Reached end`);
+      track.currentTime = 0;
+      this.playNextTrack();
+      return;
+    } else {
+      this.setState({
+        duration: Math.floor(track.duration),
+        percentTime: track.currentTime / track.duration
+      });
+    }
   };
+
+  setStart = () => {
+    //pause, then set current song time as the start time.
+    this.pauseTrack();
+    var track = this.state.tracks[this.state.currTrack];
+    //TODO: Redux this to an action
+    var trackMetadata = this.props.musicFiles[this.state.currTrack];
+
+    var currTime = track.currentTime;
+    trackMetadata.start_time = currTime;
+    //TODO: mark canvas
+  }
+
+  setEnd = () => {
+    this.pauseTrack();
+    var track = this.state.tracks[this.state.currTrack];
+
+    var trackMetadata = this.props.musicFiles[this.state.currTrack];
+
+    var currTime = track.currentTime;
+    trackMetadata.end_time = currTime+.01;
+    //TODO: mark canvas
+  }
 
   render() {
     if (this.state.canvasCtx) {
@@ -330,11 +367,13 @@ class AudioPlayer extends React.Component {
     if (this.state.playerCanvasCtx) {
       this.drawPlayer();
     }
+
+    var trackMetadata = this.props.musicFiles[this.state.currTrack]
+
     return (
       <div>
         <button onClick={this.playPause}>Play/Pause</button>
         <br />
-        {/* This should probably be cleaner / refactored to not be 500iq */}
         <p>
           Current song:{" "}
           {
@@ -350,6 +389,9 @@ class AudioPlayer extends React.Component {
           width={this.WIDTH}
           height={100}
         />
+        <br />
+        <button onClick={this.setStart}>Set Current Time as Start {trackMetadata ? trackMetadata.start_time : 0}</button>
+        <button onClick={this.setEnd}>Set Current Time as End {trackMetadata ? trackMetadata.end_time : 0}</button>
       </div>
     );
   }
