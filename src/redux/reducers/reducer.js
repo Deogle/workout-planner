@@ -1,4 +1,4 @@
-import { ADD_AUDIO, REMOVE_AUDIO } from '../actions'
+import { ADD_AUDIO, REMOVE_AUDIO, SET_AUDIO_START, SET_AUDIO_END } from '../actions'
 
 const initialState = {
     musicFiles: []
@@ -25,6 +25,10 @@ const app = (state = initialState, action) => {
                 ...state,
                 musicFiles: state.musicFiles.filter((item, index) => item.filename !== action.filename)
             }
+        case SET_AUDIO_START:
+            return state;
+        case SET_AUDIO_END:
+            return state;
         default:
             return state;
     }

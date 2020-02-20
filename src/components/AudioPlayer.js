@@ -110,6 +110,7 @@ class AudioPlayer extends React.Component {
   //TODO make this smoother
   drawPlayer = () => {
     requestAnimationFrame(this.drawPlayer);
+    var trackMetaData = this.props.musicFiles[this.state.currTrack];
     var playerCanvasCtx = this.state.playerCanvasCtx;
 
     playerCanvasCtx.clearRect(0, 0, this.WIDTH, 100);
@@ -170,6 +171,16 @@ class AudioPlayer extends React.Component {
       this.WIDTH - 40,
       53
     );
+
+    //draw start and stop points
+    if(!trackMetaData){
+      return;
+    }
+
+    
+    playerCanvasCtx.fillRect(48+(timeline_width*(trackMetaData.start_time/this.state.duration)),40,5,15);
+    playerCanvasCtx.fillRect(48+(timeline_width*(trackMetaData.end_time/this.state.duration)),40,5,15);
+    console.log(`Drawing start marker at ${trackMetaData.start_time/this.state.duration}`)
   };
 
   seekOnClick = e => {
@@ -346,7 +357,6 @@ class AudioPlayer extends React.Component {
 
     var currTime = track.currentTime;
     trackMetadata.start_time = currTime;
-    //TODO: mark canvas
   }
 
   setEnd = () => {
@@ -357,7 +367,6 @@ class AudioPlayer extends React.Component {
 
     var currTime = track.currentTime;
     trackMetadata.end_time = currTime+.01;
-    //TODO: mark canvas
   }
 
   render() {
