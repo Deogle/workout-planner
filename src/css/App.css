@@ -1,14 +1,23 @@
-.App {
-  text-align: center;
+html, body {
+  height: 100%;
+  margin:0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+#root{
+  height: 100%;
+}
+
+.App {
+  text-align: center;
+  background-color: #414141;
+  color:#dfdfdf; 
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
+
+.test {
+  margin-top: 15px;
+}
+

@@ -34,10 +34,10 @@ class AudioPlayer extends React.Component {
     this.audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
 
-    const canvas = this.refs.canvas;
+    // const canvas = this.refs.canvas;
     const playerCanvas = this.refs.player_canvas;
     const playerCanvasCtx = playerCanvas.getContext("2d");
-    const ctx = canvas.getContext("2d");
+    const ctx = null //canvas.getContext("2d");
 
     this.setState(
       {
@@ -113,16 +113,16 @@ class AudioPlayer extends React.Component {
     var playerCanvasCtx = this.state.playerCanvasCtx;
 
     playerCanvasCtx.clearRect(0, 0, this.WIDTH, 100);
-    playerCanvasCtx.fillStyle = "rgb(250,250,250)";
+    playerCanvasCtx.fillStyle = "transparent";
     playerCanvasCtx.fillRect(0, 0, this.WIDTH, 100);
 
     //draw the sound graph
 
     //timeline dimensions
-    var timeline_start = 50;
-    var timeline_end = 50 - 5;
     var timeline_width = this.HEIGHT * 3;
-    var timeline_height = 5;
+    var timeline_height = 2;
+    var timeline_start = 50;
+    var timeline_end = 50 - timeline_height;
 
     playerCanvasCtx.fillStyle = "rgb(200,200,200)";
     playerCanvasCtx.fillRect(
@@ -140,7 +140,7 @@ class AudioPlayer extends React.Component {
     var circle_startAngle = 0;
     var circle_endAngle = 2 * Math.PI;
 
-    playerCanvasCtx.fillStyle = "rgb(255,50,0)";
+    playerCanvasCtx.fillStyle = "#ff7961";
     playerCanvasCtx.beginPath();
     playerCanvasCtx.arc(
       circle_x,
@@ -153,8 +153,8 @@ class AudioPlayer extends React.Component {
     playerCanvasCtx.closePath();
 
     //draw the timestamps
-    playerCanvasCtx.font = "15px Arial";
-    playerCanvasCtx.fillStyle = "rgb(0,0,0)";
+    playerCanvasCtx.font = "15px Roboto";
+    playerCanvasCtx.fillStyle = "#f1f1f1";
 
     var track = this.state.tracks[this.state.currTrack];
     var formattedCurrentTime = 0;
@@ -237,13 +237,16 @@ class AudioPlayer extends React.Component {
 
     analyser.getFloatFrequencyData(dataArray);
     var canvasCtx = this.state.canvasCtx;
-    canvasCtx.fillStyle = "rgb(255,255,255)";
+    canvasCtx.fillStyle = "#414141";
     canvasCtx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
     var barWidth = (this.WIDTH / bufferLen) * 2.5;
     var barHeight;
     var x = 0;
     for (var i = 0; i < bufferLen; i++) {
+      if(dataArray[i] === "-Infinity"){
+        console.log(dataArray[i])
+      }
       barHeight = (dataArray[i] / 2) * 2.5;
       canvasCtx.fillStyle =
         "rgb(" + (Math.abs(barHeight * 1.5) + 50) + ",50,50)";
@@ -314,7 +317,7 @@ class AudioPlayer extends React.Component {
       this.drawPlayer();
     }
     return (
-      <div>
+      <div className={this.props.className}>
         <button onClick={this.playPause}>Play/Pause</button>
         <br />
         {/* This should probably be cleaner / refactored to not be 500iq */}
@@ -325,9 +328,10 @@ class AudioPlayer extends React.Component {
               : ""
           }
         </p>
-        <canvas ref="canvas" width={this.WIDTH} height={this.HEIGHT} />
+        {/* <canvas style={{backgroundColor:"transparent"}} ref="canvas" width={this.WIDTH} height={this.HEIGHT} /> */}
         <br />
         <canvas
+          style={{marginTop:"-110px"}}
           onClick={this.seekOnClick}
           ref="player_canvas"
           width={this.WIDTH}

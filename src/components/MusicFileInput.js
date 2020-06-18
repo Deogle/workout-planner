@@ -18,15 +18,16 @@ class MusicFileInput extends React.Component{
     }
 
     createAudio = file => {
-        return {
+        var audio = {
             filename:file.name,
             resource_url:`./example_audio/${file.name}`
         }
+        return audio
     }
     
     render(){
         return(
-            <div>
+            <div className={this.props.class}>
                 <span style={{marginLeft:"70px"}}><input id="audio_file" type="file" accept=".mp3" ref={this.state.file} onChange={this.handleUpload} /></span>
                 <p>Upload some mp3 files</p>
             </div>

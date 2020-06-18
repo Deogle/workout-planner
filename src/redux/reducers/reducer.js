@@ -8,6 +8,7 @@ const app  = (state = initialState,action)=>{
     switch(action.type){
         case ADD_AUDIO:
             let index = state.musicFiles.findIndex(val => val.filename === action.filename);
+            console.log(action);
             if(index === -1)
                 return {
                     ...state,
