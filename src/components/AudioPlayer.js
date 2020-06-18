@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getMusicFiles } from "../redux/selectors";
+import { formatTime } from "../util/time";
 
 //TODO: this class needs to be reduxed
 class AudioPlayer extends React.Component {
@@ -107,7 +108,6 @@ class AudioPlayer extends React.Component {
     this.draw();
   };
 
-  //TODO make this smoother
   drawPlayer = () => {
     requestAnimationFrame(this.drawPlayer);
     var playerCanvasCtx = this.state.playerCanvasCtx;
@@ -134,23 +134,27 @@ class AudioPlayer extends React.Component {
 
     //circle dimensions
     //x positiion will be the percentage of timeline equal to percentage of song
-    var circle_x = 50 + timeline_width * this.state.percentTime;
-    var circle_y = 50 - 2;
-    var circle_radius = 10;
-    var circle_startAngle = 0;
-    var circle_endAngle = 2 * Math.PI;
+    // var circle_x = 50 + timeline_width * this.state.percentTime;
+    // var circle_y = 50 - 2;
+    // var circle_radius = 10;
+    // var circle_startAngle = 0;
+    // var circle_endAngle = 2 * Math.PI;
 
-    playerCanvasCtx.fillStyle = "#ff7961";
-    playerCanvasCtx.beginPath();
-    playerCanvasCtx.arc(
-      circle_x,
-      circle_y,
-      circle_radius,
-      circle_startAngle,
-      circle_endAngle
-    );
-    playerCanvasCtx.fill();
-    playerCanvasCtx.closePath();
+    // playerCanvasCtx.fillStyle = "#ff7961";
+    // playerCanvasCtx.beginPath();
+    // playerCanvasCtx.arc(
+    //   circle_x,
+    //   circle_y,
+    //   circle_radius,
+    //   circle_startAngle,
+    //   circle_endAngle
+    // );
+    // playerCanvasCtx.fill();
+    // playerCanvasCtx.closePath();
+    
+    //fill line
+    playerCanvasCtx.fillStyle = "#d50000"
+    playerCanvasCtx.fillRect(timeline_start,timeline_end,timeline_width * this.state.percentTime ,timeline_height)
 
     //draw the timestamps
     playerCanvasCtx.font = "15px Roboto";
@@ -161,12 +165,12 @@ class AudioPlayer extends React.Component {
 
     if (track) {
       track = track.currentTime;
-      formattedCurrentTime = this.formatTime(track);
+      formattedCurrentTime = formatTime(track);
     }
 
     playerCanvasCtx.fillText(formattedCurrentTime, 10, 53);
     playerCanvasCtx.fillText(
-      this.formatTime(this.state.duration),
+      formatTime(this.state.duration),
       this.WIDTH - 40,
       53
     );
@@ -213,15 +217,6 @@ class AudioPlayer extends React.Component {
     }
   }
 
-  formatTime = timeInSeconds => {
-    var timeStr;
-    var time = Math.floor(timeInSeconds);
-    var minutes = Math.floor(time / 60);
-    var seconds = Math.floor(time % 60);
-    timeStr = minutes + ":" + (seconds > 9 ? seconds : "0" + seconds);
-    return timeStr;
-  };
-
   draw = () => {
     if (this.state.playing === true) {
       requestAnimationFrame(this.draw);
@@ -244,9 +239,6 @@ class AudioPlayer extends React.Component {
     var barHeight;
     var x = 0;
     for (var i = 0; i < bufferLen; i++) {
-      if(dataArray[i] === "-Infinity"){
-        console.log(dataArray[i])
-      }
       barHeight = (dataArray[i] / 2) * 2.5;
       canvasCtx.fillStyle =
         "rgb(" + (Math.abs(barHeight * 1.5) + 50) + ",50,50)";
@@ -284,7 +276,6 @@ class AudioPlayer extends React.Component {
         currTrack: this.state.currTrack + 1
       },
       () => {
-        console.log(this.state.tracks[this.state.currTrack]);
         if (this.state.tracks[this.state.currTrack] !== undefined) {
           this.state.tracks[this.state.currTrack].play();
         } else {
@@ -331,7 +322,7 @@ class AudioPlayer extends React.Component {
         {/* <canvas style={{backgroundColor:"transparent"}} ref="canvas" width={this.WIDTH} height={this.HEIGHT} /> */}
         <br />
         <canvas
-          style={{marginTop:"-110px"}}
+          style={{marginTop:"-75px"}}
           onClick={this.seekOnClick}
           ref="player_canvas"
           width={this.WIDTH}

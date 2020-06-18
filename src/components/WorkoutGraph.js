@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { getTotalDuration } from "../redux/selectors";
 import { scaleLinear } from "d3-scale";
 import { scaleThreshold } from "d3-scale";
 import { select, event } from "d3-selection";
@@ -11,16 +13,13 @@ class WorkoutGraph extends Component {
       line_x: 0
     }
   }
+  
   componentDidMount() {
     this.createChart();
   }
 
   componentDidUpdate() {
     this.createChart();
-  }
-
-  moveLine = (distance)=>{
-    this.setState({line_x:distance})
   }
 
   buildGraphData = (data) => {
@@ -274,6 +273,7 @@ class WorkoutGraph extends Component {
       .append("rect")
       .attr("id", (d, i) => `rect-${i}`);
 
+    select(node).selectAll("line").remove()
     select(node).append("line").attr("x1",this.state.line_x).attr("x2",this.state.line_x).attr("y1",0).attr("y2",1000).attr("stroke","white").attr("fill","white");
 
     //select(node).selectAll("rect").data(data).exit().remove();
@@ -309,7 +309,6 @@ class WorkoutGraph extends Component {
       .on("end", () => {
         //check event x relative to other interval elements, rearrange array, and redraw
         var datum = data[curr_id.split("-")[1]];
-        console.log(datum);
         datum.x = event.x;
         data.sort((a, b) => {
           return a.x - b.x;
@@ -336,4 +335,9 @@ class WorkoutGraph extends Component {
   }
 }
 
-export default WorkoutGraph;
+const mapStateToProps = (state) => {
+  const totalDuration = getTotalDuration(state);
+  return { totalDuration };
+};
+
+export default connect(mapStateToProps)(WorkoutGraph);
