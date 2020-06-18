@@ -1,19 +1,17 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getTotalDuration } from "../redux/selectors";
+import {
+  getTotalDuration,
+  getCurrentTime,
+  getCurrentSong,
+  getMusicFiles,
+} from "../redux/selectors";
 import { scaleLinear } from "d3-scale";
 import { scaleThreshold } from "d3-scale";
 import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
 
 class WorkoutGraph extends Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      line_x: 0
-    }
-  }
-  
   componentDidMount() {
     this.createChart();
   }
@@ -263,6 +261,26 @@ class WorkoutGraph extends Component {
         ])(data);
     };
 
+    const calculateLineX = () => {
+      //calculate line x position as percentage of total duration offset by current song location and duration
+      var line_x = -1;
+      if (this.props.musicFiles.length < 1) {
+        return line_x;
+      }
+      var index = this.props.musicFiles.findIndex(
+        (file) => file.filename === this.props.currentSong
+      );
+      var totalDuration = this.props.totalDuration;
+      var currTime = this.props.currentTime;
+      var currTimeTotal =
+        this.props.musicFiles.slice(0, index).reduce((a, b) => {
+          return a + b.duration;
+        }, 0) + currTime;
+      var percTotalTime = currTimeTotal / totalDuration;
+      line_x = this.props.width * percTotalTime;
+      return line_x;
+    };
+
     const yScale = scaleLinear()
       .domain([0, 150])
       .range([0, this.props.size[1]]);
@@ -273,8 +291,15 @@ class WorkoutGraph extends Component {
       .append("rect")
       .attr("id", (d, i) => `rect-${i}`);
 
-    select(node).selectAll("line").remove()
-    select(node).append("line").attr("x1",this.state.line_x).attr("x2",this.state.line_x).attr("y1",0).attr("y2",1000).attr("stroke","white").attr("fill","white");
+    select(node).selectAll("line").remove();
+    select(node)
+      .append("line")
+      .attr("x1", calculateLineX())
+      .attr("x2", calculateLineX())
+      .attr("y1", 0)
+      .attr("y2", 1000)
+      .attr("stroke", "white")
+      .attr("fill", "white");
 
     //select(node).selectAll("rect").data(data).exit().remove();
 
@@ -294,7 +319,7 @@ class WorkoutGraph extends Component {
       .on("mousedown", (d, i) => {
         curr_id = event.target.id;
       })
-      .on("click",(d,i)=>{
+      .on("click", (d, i) => {
         this.createChart();
       });
     //drag handler - TODO: always bring dragged element to front
@@ -304,7 +329,7 @@ class WorkoutGraph extends Component {
         if (curr_id)
           select(node)
             .select(`#${id}`)
-            .attr("x", (d, i) => event.x)
+            .attr("x", (d, i) => event.x);
       })
       .on("end", () => {
         //check event x relative to other interval elements, rearrange array, and redraw
@@ -321,14 +346,12 @@ class WorkoutGraph extends Component {
 
   render() {
     return (
-      <div
-        className={this.props.class}
-      >
+      <div className={this.props.class}>
         <svg
           ref={(node) => (this.node = node)}
           width={this.props.width}
           height={this.props.height}
-          style={{ backgroundColor:"black",verticalAlign: "top" }}
+          style={{ backgroundColor: "black", verticalAlign: "top" }}
         ></svg>
       </div>
     );
@@ -337,7 +360,11 @@ class WorkoutGraph extends Component {
 
 const mapStateToProps = (state) => {
   const totalDuration = getTotalDuration(state);
-  return { totalDuration };
+  const currentTime = getCurrentTime(state);
+  const currentSong = getCurrentSong(state);
+  const musicFiles = getMusicFiles(state);
+
+  return { musicFiles, totalDuration, currentTime, currentSong };
 };
 
 export default connect(mapStateToProps)(WorkoutGraph);

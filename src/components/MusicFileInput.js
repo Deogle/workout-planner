@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { addAudio, updateAudioDuration } from "../redux/actions";
-import { getTotalDuration } from "../redux/selectors"
+import { addAudio, updateAudioDuration, setCurrentSong } from "../redux/actions";
+import { getTotalDuration, getMusicFiles } from "../redux/selectors"
 import { formatTime } from "../util/time"
 
 class MusicFileInput extends React.Component {
@@ -16,6 +16,9 @@ class MusicFileInput extends React.Component {
     e.preventDefault();
     if (this.state.file) {
       this.props.addAudio(this.createAudio(this.state.file.current.files[0]));
+      if(this.props.musicFiles.length === 0){
+        this.props.setCurrentSong({filename:this.state.file.current.files[0].name});
+      }
     }
   };
 
@@ -51,7 +54,8 @@ class MusicFileInput extends React.Component {
 
 const mapStateToProps = (state) => {
   const totalDuration = getTotalDuration(state);
-  return { totalDuration };
+  const musicFiles = getMusicFiles(state);
+  return { totalDuration, musicFiles };
 };
 
-export default connect(mapStateToProps, { addAudio, updateAudioDuration })(MusicFileInput);
+export default connect(mapStateToProps, { addAudio, updateAudioDuration, setCurrentSong })(MusicFileInput);

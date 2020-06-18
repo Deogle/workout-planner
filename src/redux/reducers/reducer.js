@@ -1,22 +1,24 @@
-import { ADD_AUDIO, REMOVE_AUDIO, UPDATE_DURATION } from "../actions";
+import { ADD_AUDIO, REMOVE_AUDIO, UPDATE_DURATION, SET_CURR_SONG, SET_CURR_TIME } from "../actions";
 
 const initialState = {
   musicFiles: [],
   totalDuration: 0,
+  currentSong: undefined,
+  currentTime: undefined
 };
 
 const app = (state = initialState, action) => {
   switch (action.type) {
     case ADD_AUDIO:
       let index = state.musicFiles.findIndex(
-        (val) => val.filename === action.filename
+        (val) => val.filename === action.payload.filename
       );
       if (index === -1)
         return {
           ...state,
           musicFiles: state.musicFiles.concat({
-            filename: action.filename,
-            resource_url: action.resource_url,
+            filename: action.payload.filename,
+            resource_url: action.payload.resource_url,
             duration: 0,
           }),
         };
@@ -26,35 +28,42 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         musicFiles: state.musicFiles.filter(
-          (item, index) => item.filename !== action.filename
+          (item, index) => item.filename !== action.payload.filename
         ),
       };
     case UPDATE_DURATION:
       return updateDuration(state, action);
+    case SET_CURR_TIME:
+        return {
+            ...state,
+            currentTime:action.payload.time
+        }
+    case SET_CURR_SONG:
+        return {
+            ...state,
+            currentSong: action.payload.filename
+        }
     default:
       return state;
   }
 };
-
 const updateDuration = (state, action) => {
   const index = state.musicFiles.findIndex(
-    (file) => file.filename === action.filename
+    (file) => file.filename === action.payload.filename
   );
-  console.log(state.musicFiles);
-  console.log(index);
   return {
     ...state,
     musicFiles: [
       ...state.musicFiles.slice(0, index),
       {
         ...state.musicFiles[index],
-        duration:action.duration
+        duration:action.payload.duration
       },
       ...state.musicFiles.slice(index + 1),
     ],
     totalDuration: state.musicFiles.reduce((a, b) => {
-      if(b.filename === action.filename){
-          return a+action.duration;
+      if(b.filename === action.payload.filename){
+          return a+action.payload.duration;
       } else {
           return a+b.duration;
       }

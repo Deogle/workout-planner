@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getMusicFiles } from "../redux/selectors";
+import { getMusicFiles, getCurrentSong, getCurrentTime } from "../redux/selectors";
 import { formatTime } from "../util/time";
+import { setCurrentTime, setCurrentSong } from "../redux/actions";
 
 //TODO: this class needs to be reduxed
 class AudioPlayer extends React.Component {
@@ -278,12 +279,16 @@ class AudioPlayer extends React.Component {
       () => {
         if (this.state.tracks[this.state.currTrack] !== undefined) {
           this.state.tracks[this.state.currTrack].play();
-        } else {
+          
+          this.props.setCurrentSong({filename:this.state.tracks[this.state.currTrack].currentSrc.split("/")[4]})
+        }
+        else {
           this.setState(
             {
-              currTrack: 0
-            }, () => {
+              currTrack: 0,
+            },()=>{
               this.state.tracks[this.state.currTrack].play();
+              this.props.setCurrentSong({filename:this.state.tracks[this.state.currTrack].currentSrc.split("/")[4]})
             }
           );
         }
@@ -293,8 +298,8 @@ class AudioPlayer extends React.Component {
 
   getCurrentTime = () => {
     var track = this.state.tracks[this.state.currTrack];
+    this.props.setCurrentTime({time:track.currentTime})
     this.setState({
-      curr_time: track.currentTime,
       duration: Math.floor(track.duration),
       percentTime: track.currentTime / track.duration
     });
@@ -313,12 +318,13 @@ class AudioPlayer extends React.Component {
         <br />
         {/* This should probably be cleaner / refactored to not be 500iq */}
         <p>
-          Current song:{" "}
+          Current song:
           {
-            this.props.musicFiles[this.state.currTrack] !== undefined ? this.props.musicFiles[this.state.currTrack].filename
+            this.props.currentSong !== undefined ? ` ${this.props.currentSong}`
               : ""
           }
         </p>
+        <p>Current Time: {this.props.currentTimeState}</p>
         {/* <canvas style={{backgroundColor:"transparent"}} ref="canvas" width={this.WIDTH} height={this.HEIGHT} /> */}
         <br />
         <canvas
@@ -335,7 +341,9 @@ class AudioPlayer extends React.Component {
 
 const mapStateToProps = state => {
   const musicFiles = getMusicFiles(state);
-  return { musicFiles };
+  const currentSong = getCurrentSong(state);
+  const currentTimeState = getCurrentTime(state);
+  return { musicFiles, currentSong, currentTimeState };
 }
 
-export default connect(mapStateToProps)(AudioPlayer);
+export default connect(mapStateToProps,{setCurrentSong,setCurrentTime})(AudioPlayer);
