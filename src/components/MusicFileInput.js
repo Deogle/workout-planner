@@ -4,6 +4,7 @@ import {
   addAudio,
   updateAudioDuration,
   setCurrentSong,
+  addInterval,
 } from "../redux/actions";
 import { getTotalDuration, getMusicFiles } from "../redux/selectors";
 import UploadIcon from "../img/add_to_photos-white-18dp.svg";
@@ -49,6 +50,10 @@ class MusicFileInput extends React.Component {
         filename: file.name,
         duration: audio_obj.duration,
       });
+      this.props.onAddInterval({
+        duration:audio_obj.duration,
+        intensity:Math.random()*100
+      })
     };
     return audio;
   };
@@ -95,6 +100,9 @@ const mapDispatchToProps = (dispatch) => {
     onSetCurrentSong: (song) => {
       dispatch(setCurrentSong(song));
     },
+    onAddInterval: interval => {
+      dispatch(addInterval(interval));
+    }
   };
 };
 

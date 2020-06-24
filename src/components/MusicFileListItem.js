@@ -6,7 +6,7 @@ import { getCurrentSong } from '../redux/selectors'
 
 const MusicFileListItem = props => (
     <li className="music-file-list-item" style={props.currentSong === props.file.filename?{backgroundColor:"green"}:{}}>
-        <span>{props.file.filename}</span>
+        <span>{props.file.filename.split(".")[0]}</span>
         <img onClick={()=>{props.onRemoveAudio({filename:props.file.filename})}} alt="test" src={DeleteIcon}/>
     </li>
 )
