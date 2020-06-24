@@ -1,14 +1,110 @@
-.App {
-  text-align: center;
+html, body {
+  height: 100%;
+  margin:0;
+  font-family: Roboto;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+#root{
+  height: 100%;
+}
+
+h1 {
+  margin-top: 0px;
+  padding: 10px;
+  font-size: 40pt;
+}
+
+.App {
+  background-color: #414141;
+  color:#dfdfdf;
+  height: 100%;
+}
+
+.navbar {
+  min-width: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  max-width: 500px;
 }
+
+.main-container {
+  /* text-align: center; */
+  background-color: #414141;
+  color:#dfdfdf; 
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100%;
+  border-top: 1px solid white;
+}
+
+.row2{
+  padding: 80px;
+  width: 100%;
+  background-color: #2b2b2b;
+  display: flex;
+  flex-direction: column;
+  /* margin-right: 200px; */
+}
+
+.workout-graph{
+  align-self: center;
+}
+
+.audio-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.audio-input-img{
+  width: 60px;
+  padding-top: 15px;
+  opacity: 54%;
+}
+
+.audio-input-img:hover{
+  opacity: 87%;
+}
+
+ul{
+  padding: 0px;
+}
+
+.music-file-list{
+  width: 100%;
+  max-width: 100%;
+}
+
+.music-file-list-item{
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  background-color: rgba(128, 128, 128, 0.54);
+  font-size: 18pt;
+  padding: 20px;
+  margin-bottom: 10px;
+  margin-right: 15px;
+  margin-left: 15px;
+  border-radius: 5px;
+
+}
+
+.music-file-list-item img{
+  width: 25px;
+  opacity: 54%;
+}
+
+.music-file-list-item img:hover{
+  width: 25px;
+  opacity: 87%;
+}
+
+.music-file-list-item:hover{
+  background-color: rgba(128, 128, 128, 0.87);
+}
+
