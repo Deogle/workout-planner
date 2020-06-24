@@ -1,8 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
-import { addAudio, updateAudioDuration, setCurrentSong } from "../redux/actions";
-import { getTotalDuration, getMusicFiles } from "../redux/selectors"
-import { formatTime } from "../util/time"
+import {
+  addAudio,
+  updateAudioDuration,
+  setCurrentSong,
+} from "../redux/actions";
+import { getTotalDuration, getMusicFiles } from "../redux/selectors";
+import { formatTime } from "../util/time";
+import UploadIcon from "../img/add_to_photos-white-18dp.svg";
 
 class MusicFileInput extends React.Component {
   constructor(props) {
@@ -15,9 +20,11 @@ class MusicFileInput extends React.Component {
   handleUpload = (e) => {
     e.preventDefault();
     if (this.state.file) {
-      this.props.addAudio(this.createAudio(this.state.file.current.files[0]));
-      if(this.props.musicFiles.length === 0){
-        this.props.setCurrentSong({filename:this.state.file.current.files[0].name});
+      this.props.onAddAudio(this.createAudio(this.state.file.current.files[0]));
+      if (this.props.musicFiles.length === 0) {
+        this.props.onSetCurrentSong({
+          filename: this.state.file.current.files[0].name,
+        });
       }
     }
   };
@@ -29,24 +36,34 @@ class MusicFileInput extends React.Component {
     };
     var audio_obj = new Audio(audio.resource_url);
     audio_obj.onloadeddata = () => {
-        this.props.updateAudioDuration({filename:file.name,duration:audio_obj.duration})
-    }
+      this.props.onUpdateAudioDuration({
+        filename: file.name,
+        duration: audio_obj.duration,
+      });
+    };
     return audio;
   };
 
   render() {
     return (
       <div className={this.props.class}>
-        <span style={{ marginLeft: "70px" }}>
-          <input
-            id="audio_file"
-            type="file"
-            accept=".mp3"
-            ref={this.state.file}
-            onChange={this.handleUpload}
+        <input
+          id="audio_file_input"
+          type="file"
+          accept=".mp3"
+          ref={this.state.file}
+          onChange={this.handleUpload}
+          style={{ display: "none" }}
+        />
+
+        <label htmlFor="audio_file_input">
+          <img
+            className="audio-input-img"
+            alt="Upload"
+            src={UploadIcon}
           />
-        </span>
-        <p>Upload some mp3 files: Total Playlist Time: {formatTime(this.props.totalDuration)}</p>
+        </label>
+        {/* <p>Total Playlist Time: {formatTime(this.props.totalDuration)}</p> */}
       </div>
     );
   }
@@ -58,4 +75,18 @@ const mapStateToProps = (state) => {
   return { totalDuration, musicFiles };
 };
 
-export default connect(mapStateToProps, { addAudio, updateAudioDuration, setCurrentSong })(MusicFileInput);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onAddAudio: (file) => {
+      dispatch(addAudio(file));
+    },
+    onUpdateAudioDuration: (dur) => {
+      dispatch(updateAudioDuration(dur));
+    },
+    onSetCurrentSong: (song) => {
+      dispatch(setCurrentSong(song));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MusicFileInput);

@@ -1,15 +1,15 @@
 import React from 'react'
 import { connect } from "react-redux";
 import { getMusicFiles } from "../redux/selectors";
-import MusicFile from "./MusicFile";
+import MusicFileListItem from "./MusicFileListItem";
 
 const MusicList = ({musicFiles}) => {
     return (
-        <div>
+        <div className="music-file-list">
             <ul>
                 { musicFiles && musicFiles.length
                     ? musicFiles.map((file,index)=>{
-                        return <MusicFile key={`musicFile-${file.filename}`} file={file}/>;
+                        return <MusicFileListItem key={`musicFile-${file.filename}`} file={file}/>;
                     })
                     : null
                 }

@@ -346,7 +346,7 @@ class WorkoutGraph extends Component {
 
   render() {
     return (
-      <div className={this.props.class}>
+      <div className={this.props.className}>
         <svg
           ref={(node) => (this.node = node)}
           width={this.props.width}

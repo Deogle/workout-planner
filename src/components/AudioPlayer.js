@@ -314,26 +314,14 @@ class AudioPlayer extends React.Component {
     }
     return (
       <div className={this.props.className}>
-        <button onClick={this.playPause}>Play/Pause</button>
-        <br />
-        {/* This should probably be cleaner / refactored to not be 500iq */}
-        <p>
-          Current song:
-          {
-            this.props.currentSong !== undefined ? ` ${this.props.currentSong}`
-              : ""
-          }
-        </p>
-        <p>Current Time: {this.props.currentTimeState}</p>
-        {/* <canvas style={{backgroundColor:"transparent"}} ref="canvas" width={this.WIDTH} height={this.HEIGHT} /> */}
-        <br />
         <canvas
-          style={{marginTop:"-75px"}}
+          style={{maxWidth:this.WIDTH}}
           onClick={this.seekOnClick}
           ref="player_canvas"
           width={this.WIDTH}
           height={100}
         />
+        <button onClick={this.playPause}>Play/Pause</button>
       </div>
     );
   }

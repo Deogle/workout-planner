@@ -14,7 +14,7 @@ export const addAudio =  file => {
 }
 
 export const removeAudio = file => {
-    return { type: REMOVE_AUDIO, payload:{filename:file.filename,resource_url:file.resource_url}}
+    return { type: REMOVE_AUDIO, payload:{filename:file.filename}}
 }
 
 export const updateAudioDuration = obj => {
