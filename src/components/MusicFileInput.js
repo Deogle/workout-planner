@@ -8,6 +8,16 @@ import {
 import { getTotalDuration, getMusicFiles } from "../redux/selectors";
 import UploadIcon from "../img/add_to_photos-white-18dp.svg";
 
+const UploadIconComponent = (props) => {
+  return (
+    <img
+      className={"audio-input-img" + (props.active ? " interactable" : "")}
+      alt="Upload"
+      src={UploadIcon}
+    />
+  );
+};
+
 class MusicFileInput extends React.Component {
   constructor(props) {
     super(props);
@@ -46,23 +56,23 @@ class MusicFileInput extends React.Component {
   render() {
     return (
       <div className={this.props.class}>
-        <input
-          id="audio_file_input"
-          type="file"
-          accept=".mp3"
-          ref={this.state.file}
-          onChange={this.handleUpload}
-          style={{ display: "none" }}
-        />
-
-        <label htmlFor="audio_file_input">
-          <img
-            className="audio-input-img"
-            alt="Upload"
-            src={UploadIcon}
-          />
-        </label>
-        {/* <p>Total Playlist Time: {formatTime(this.props.totalDuration)}</p> */}
+        {this.props.active ? (
+          <div>
+            <input
+              id="audio_file_input"
+              type="file"
+              accept=".mp3"
+              ref={this.state.file}
+              onChange={this.handleUpload}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="audio_file_input">
+              <UploadIconComponent active={this.props.active} />
+            </label>
+          </div>
+        ) : (
+          <UploadIconComponent active={this.props.active} />
+        )}
       </div>
     );
   }

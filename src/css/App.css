@@ -34,7 +34,34 @@ h1 {
   width: 100%;
   flex-direction: row;
   justify-content: space-around;
-  border-bottom: 1px solid rgba(165, 162, 162, 0.54);
+  background-size: 1px;
+}
+
+.tab{
+  padding-bottom: 10px;
+}
+
+.tab-left{
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+
+.tab-inactive{
+  opacity: 87%;
+  background-color: #333333;
+}
+
+.tab-inactive:hover{
+  opacity: 100%;
+  background-color: #333333;
+}
+
+.tab-right{
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .main-container {
@@ -71,12 +98,12 @@ h1 {
 }
 
 .audio-input-img{
-  width: 60px;
+  width: 50px;
   padding-top: 15px;
   opacity: 54%;
 }
 
-.audio-input-img:hover{
+.interactable:hover{
   opacity: 87%;
 }
 
@@ -109,7 +136,6 @@ ul{
 }
 
 .music-file-list-item img:hover{
-  width: 25px;
   opacity: 87%;
 }
 

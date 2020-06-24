@@ -337,7 +337,7 @@ class WorkoutGraph extends Component {
     //draw song deliniation lines
     select(node).selectAll("text").remove();
     for (var song of this.props.musicFiles) {
-      var x_val = calculateSongLine(song);
+      var x_val = calculateSongLine(song)+1;
       select(node)
         .append("line")
         .attr("x1", x_val)
@@ -408,7 +408,7 @@ class WorkoutGraph extends Component {
           ref={(node) => (this.node = node)}
           width={this.props.width}
           height={this.props.height}
-          style={{ backgroundColor: "black", verticalAlign: "top" }}
+          style={{ backgroundColor: "black", verticalAlign: "top",borderRadius:"25px"}}
         ></svg>
       </div>
     );
