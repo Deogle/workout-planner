@@ -6,7 +6,6 @@ import {
   setCurrentSong,
 } from "../redux/actions";
 import { getTotalDuration, getMusicFiles } from "../redux/selectors";
-import { formatTime } from "../util/time";
 import UploadIcon from "../img/add_to_photos-white-18dp.svg";
 
 class MusicFileInput extends React.Component {

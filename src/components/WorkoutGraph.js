@@ -278,8 +278,40 @@ class WorkoutGraph extends Component {
         }, 0) + currTime;
       var percTotalTime = currTimeTotal / totalDuration;
       line_x = this.props.width * percTotalTime;
+      if (!line_x) {
+        return -1;
+      }
       return line_x;
     };
+
+    const calculateSongLine = (song) => {
+      var index = this.props.musicFiles.findIndex(
+        (file) => file.filename === song.filename
+      );
+      var totalDur = this.props.totalDuration;
+      var timeTotal = this.props.musicFiles
+        .slice(0, index + 1)
+        .reduce((a, b) => {
+          return a + b.duration;
+        }, 0);
+      var percTime = timeTotal / totalDur;
+      return this.props.width * percTime;
+    };
+
+
+    const calculateTextX = song => {
+      var index = this.props.musicFiles.findIndex(
+        (file) => file.filename === song.filename
+      );
+      if(this.props.musicFiles.length <= 1 || index === 0){
+        return calculateSongLine(song) /2;
+      }
+      var song_prev_x = calculateSongLine(this.props.musicFiles[index-1]);
+      var curr_x = calculateSongLine(this.props.musicFiles[index]);
+      var text_x = ((curr_x-song_prev_x)/2)+song_prev_x
+      console.log(text_x)
+      return text_x
+    }
 
     const yScale = scaleLinear()
       .domain([0, 150])
@@ -292,6 +324,7 @@ class WorkoutGraph extends Component {
       .attr("id", (d, i) => `rect-${i}`);
 
     select(node).selectAll("line").remove();
+    //draw current time line
     select(node)
       .append("line")
       .attr("x1", calculateLineX())
@@ -300,6 +333,30 @@ class WorkoutGraph extends Component {
       .attr("y2", 1000)
       .attr("stroke", "white")
       .attr("fill", "white");
+
+    //draw song deliniation lines
+    select(node).selectAll("text").remove();
+    for (var song of this.props.musicFiles) {
+      var x_val = calculateSongLine(song);
+      select(node)
+        .append("line")
+        .attr("x1", x_val)
+        .attr("x2", x_val)
+        .attr("y1", 0)
+        .attr("y2", 1000)
+        .attr("stroke", "white")
+        .attr("fill", "white");
+      if (x_val) {
+        var text_x = calculateTextX(song);
+        select(node)
+          .append("text")
+          .attr("x", text_x)
+          .attr("y", this.props.height / 2)
+          .attr("fill", "white")
+          .style("text-anchor", "middle")
+          .text(song.filename);
+      }
+    }
 
     //select(node).selectAll("rect").data(data).exit().remove();
 
