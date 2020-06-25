@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import {
   addAudio,
-  updateAudioDuration,
   setCurrentSong,
   addInterval,
 } from "../redux/actions";
@@ -30,11 +29,9 @@ class MusicFileInput extends React.Component {
   handleUpload = (e) => {
     e.preventDefault();
     if (this.state.file) {
-      this.props.onAddAudio(this.createAudio(this.state.file.current.files[0]));
-      if (this.props.musicFiles.length === 0) {
-        this.props.onSetCurrentSong({
-          filename: this.state.file.current.files[0].name,
-        });
+      for (var file of this.state.file.current.files) {
+        //this.props.onFetchAudio({filename:file.name,resource_url:`./example_audio/${file.name}`})
+        this.createAudio(file);
       }
     }
   };
@@ -46,14 +43,17 @@ class MusicFileInput extends React.Component {
     };
     var audio_obj = new Audio(audio.resource_url);
     audio_obj.onloadeddata = () => {
-      this.props.onUpdateAudioDuration({
-        filename: file.name,
-        duration: audio_obj.duration,
-      });
+      audio.duration = audio_obj.duration;
+      if (this.props.musicFiles.length === 0) {
+        this.props.onSetCurrentSong({
+          filename:audio.filename,
+        });
+      }
+      this.props.onAddAudio(audio);
       this.props.onAddInterval({
-        duration:audio_obj.duration,
-        intensity:Math.random()*100
-      })
+        duration: audio_obj.duration,
+        intensity: Math.random() * 100,
+      });
     };
     return audio;
   };
@@ -69,6 +69,7 @@ class MusicFileInput extends React.Component {
               accept=".mp3"
               ref={this.state.file}
               onChange={this.handleUpload}
+              multiple
               style={{ display: "none" }}
             />
             <label htmlFor="audio_file_input">
@@ -94,15 +95,12 @@ const mapDispatchToProps = (dispatch) => {
     onAddAudio: (file) => {
       dispatch(addAudio(file));
     },
-    onUpdateAudioDuration: (dur) => {
-      dispatch(updateAudioDuration(dur));
-    },
     onSetCurrentSong: (song) => {
       dispatch(setCurrentSong(song));
     },
-    onAddInterval: interval => {
+    onAddInterval: (interval) => {
       dispatch(addInterval(interval));
-    }
+    },
   };
 };
 

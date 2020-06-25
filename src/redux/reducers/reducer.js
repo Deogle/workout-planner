@@ -30,7 +30,7 @@ const app = (state = initialState, action) => {
           musicFiles: state.musicFiles.concat({
             filename: action.payload.filename,
             resource_url: action.payload.resource_url,
-            duration: 0,
+            duration: action.payload.duration,
           }),
         };
       return state;
@@ -42,8 +42,6 @@ const app = (state = initialState, action) => {
           (item, index) => item.filename !== action.payload.filename
         ),
       };
-    case UPDATE_DURATION:
-      return updateDuration(state, action);
     case SET_CURR_TIME:
       return {
         ...state,
@@ -57,8 +55,7 @@ const app = (state = initialState, action) => {
     case ADD_INTERVAL:
       return {
         ...state,
-        intervals:state.intervals.concat(action.payload)
-
+        intervals: state.intervals.concat(action.payload),
       };
     case REMOVE_INTERVAL:
       return {
@@ -69,43 +66,18 @@ const app = (state = initialState, action) => {
         ...state,
       };
     case UPDATE_INTERVAL_ORDER:
-      return updateIntervalOrder(state,action);
+      return updateIntervalOrder(state, action);
     default:
       return state;
   }
 };
 
-const updateDuration = (state, action) => {
-  const index = state.musicFiles.findIndex(
-    (file) => file.filename === action.payload.filename
-  );
+const updateIntervalOrder = (state, action) => {
+  console.log("SORTING", action.payload.arr);
   return {
     ...state,
-    musicFiles: [
-      ...state.musicFiles.slice(0, index),
-      {
-        ...state.musicFiles[index],
-        duration: action.payload.duration,
-      },
-      ...state.musicFiles.slice(index + 1),
-    ],
-    totalDuration: state.musicFiles.reduce((a, b) => {
-      if (b.filename === action.payload.filename) {
-        return a + action.payload.duration;
-      } else {
-        return a + b.duration;
-      }
-    }, 0),
+    intervals: action.payload.arr.map((i) => state.intervals.slice()[i]),
   };
 };
-
-
-const updateIntervalOrder = (state,action) => {
-  console.log("SORTING",action.payload.arr);
-  return {
-    ...state,
-    intervals:action.payload.arr.map(i=>state.intervals.slice()[i])
-  }
-}
 
 export default app;

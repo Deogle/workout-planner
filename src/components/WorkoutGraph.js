@@ -319,6 +319,7 @@ class WorkoutGraph extends Component {
       var index = this.props.musicFiles.findIndex(
         (file) => file.filename === song.filename
       );
+      console.log(this.props.musicFiles[index]);
       var totalDur = this.props.totalDuration;
       var timeTotal = this.props.musicFiles
         .slice(0, index + 1)
@@ -367,6 +368,7 @@ class WorkoutGraph extends Component {
       .attr("fill", "white");
 
     //draw song deliniation lines
+    console.log(this.props.musicFiles);
     select(node).selectAll("text").remove();
     for (var song of this.props.musicFiles) {
       var x_val = calculateSongLine(song)+1;
