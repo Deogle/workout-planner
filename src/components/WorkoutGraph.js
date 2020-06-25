@@ -5,11 +5,13 @@ import {
   getCurrentTime,
   getCurrentSong,
   getMusicFiles,
+  getIntervals,
 } from "../redux/selectors";
 import { scaleLinear } from "d3-scale";
 import { scaleThreshold } from "d3-scale";
 import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
+import { updateIntervalOrder } from "../redux/actions";
 
 class WorkoutGraph extends Component {
   componentDidMount() {
@@ -21,35 +23,64 @@ class WorkoutGraph extends Component {
   }
 
   buildGraphData = (data) => {
+    var interval_data = []
     var sum = 0;
     for (var datum of data) {
       sum += datum.duration;
+      interval_data.push(data);
     }
     //calculate width as percentage of sum of duration
-    for (var i = 0; i < data.length; i++) {
-      data[i].width = (data[i].duration / sum) * this.props.width;
+    for (var i = 0; i < interval_data.length; i++) {
+      interval_data[i].width = (interval_data[i].duration / sum) * this.props.width;
     }
     //calculate x location
-    for (var j = 0; j < data.length; j++) {
+    for (var j = 0; j < interval_data.length; j++) {
       if (j === 0) {
-        data[j].x = 0;
+        interval_data[j].x = 0;
       } else {
-        data[j].x = data[j - 1].x + data[j - 1].width;
+        interval_data[j].x = interval_data[j - 1].x + interval_data[j - 1].width;
       }
     }
-    return data;
+    return interval_data;
   };
 
   createChart = () => {
-    const data = this.buildGraphData(this.props.data);
     const node = this.node;
-    data.reduce((a, b) => {
+    var sum = 0
+    
+    for (var datum of this.props.intervals) {
+      sum += datum.duration;
+    }
+
+    if(this.props.intervals.length === 0){
+      return;
+    }
+    this.props.intervals.reduce((a, b) => {
       if (a.intensity) {
         return Math.max(a.intensity, b.intensity);
       } else {
         return Math.max(a, b.intensity);
       }
     });
+
+
+    const calculateWidth = data => {
+      if(!data){
+        return
+      }
+      return (data.duration / sum) * this.props.width
+    }
+
+    const calculateRectX = index => {
+      if(!this.props.intervals[index]){
+        return
+      }
+      if(index===0){
+        return 0;
+      } else {
+        return calculateRectX(index-1)+calculateWidth(this.props.intervals[index-1]);
+      }
+    }
 
     const calculateColor = (data) => {
       const min = 0;
@@ -278,39 +309,99 @@ class WorkoutGraph extends Component {
         }, 0) + currTime;
       var percTotalTime = currTimeTotal / totalDuration;
       line_x = this.props.width * percTotalTime;
+      if (!line_x) {
+        return -1;
+      }
       return line_x;
     };
+
+    const calculateSongLine = (song) => {
+      var index = this.props.musicFiles.findIndex(
+        (file) => file.filename === song.filename
+      );
+      console.log(this.props.musicFiles[index]);
+      var totalDur = this.props.totalDuration;
+      var timeTotal = this.props.musicFiles
+        .slice(0, index + 1)
+        .reduce((a, b) => {
+          return a + b.duration;
+        }, 0);
+      var percTime = timeTotal / totalDur;
+      return this.props.width * percTime;
+    };
+
+
+    const calculateTextX = song => {
+      var index = this.props.musicFiles.findIndex(
+        (file) => file.filename === song.filename
+      );
+      if(this.props.musicFiles.length <= 1 || index === 0){
+        return calculateSongLine(song) /2;
+      }
+      var song_prev_x = calculateSongLine(this.props.musicFiles[index-1]);
+      var curr_x = calculateSongLine(this.props.musicFiles[index]);
+      var text_x = ((curr_x-song_prev_x)/2)+song_prev_x
+      console.log(text_x)
+      return text_x
+    }
 
     const yScale = scaleLinear()
       .domain([0, 150])
       .range([0, this.props.size[1]]);
     select(node)
       .selectAll("rect")
-      .data(data)
+      .data(this.props.intervals)
       .enter()
       .append("rect")
-      .attr("id", (d, i) => `rect-${i}`);
+      .attr("id", (d, i) => `rect-${i}`)
+      .attr("opacity","87%");
 
     select(node).selectAll("line").remove();
+    //draw current time line
     select(node)
       .append("line")
       .attr("x1", calculateLineX())
       .attr("x2", calculateLineX())
       .attr("y1", 0)
-      .attr("y2", 1000)
+      .attr("y2", this.props.height)
       .attr("stroke", "white")
       .attr("fill", "white");
+
+    //draw song deliniation lines
+    console.log(this.props.musicFiles);
+    select(node).selectAll("text").remove();
+    for (var song of this.props.musicFiles) {
+      var x_val = calculateSongLine(song)+1;
+      select(node)
+        .append("line")
+        .attr("x1", x_val)
+        .attr("x2", x_val)
+        .attr("y1", 0)
+        .attr("y2", this.props.height)
+        .attr("stroke", "white")
+        .attr("fill", "white");
+      if (x_val) {
+        var text_x = calculateTextX(song);
+        select(node)
+          .append("text")
+          .attr("x", text_x)
+          .attr("y", this.props.height *.1)
+          .attr("fill", "white")
+          .style("text-anchor", "middle")
+          .text(song.filename.split(".")[0]);
+      }
+    }
 
     //select(node).selectAll("rect").data(data).exit().remove();
 
     select(node)
       .selectAll("rect")
-      .data(data)
+      .data(this.props.intervals)
       .attr("style", (d) => `fill:${calculateColor(d.intensity)}`)
-      .attr("x", (d, i) => d.x)
+      .attr("x", (d, i) => {return calculateRectX(i)})
       .attr("y", (d) => this.props.size[1] - yScale(d.intensity))
       .attr("height", (d) => yScale(d.intensity))
-      .attr("width", (d) => d.width);
+      .attr("width", (d) => calculateWidth(d));
 
     //setup click and drag events
     var curr_id = "";
@@ -333,15 +424,35 @@ class WorkoutGraph extends Component {
       })
       .on("end", () => {
         //check event x relative to other interval elements, rearrange array, and redraw
-        var datum = data[curr_id.split("-")[1]];
-        datum.x = event.x;
-        data.sort((a, b) => {
-          return a.x - b.x;
+        //dispatch resorting
+        var sorted = this.props.intervals.slice().sort((a, b) => {
+
+          var a_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === a.id));
+          var b_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === b.id));
+
+          if(a.id === this.props.intervals[curr_id.split("-")[1]].id){
+            return event.x - b_x;
+          } else if(b.id === this.props.intervals[curr_id.split("-")[1]].id){
+            console.log("A_X:",a_x, "NEW_X:",event.x);
+            return a_x - event.x;
+          } else {
+            return a_x - b_x
+          }
         });
+        var new_idxs = [];
+        for(var datum of sorted){
+          // eslint-disable-next-line no-loop-func
+          var idx = this.props.intervals.findIndex(interval=>{return interval.id === datum.id});
+          new_idxs.push(idx);
+        }
+        console.log(this.props.intervals);
+        console.log(new_idxs);
+        this.props.onUpdateIntervalOrder(new_idxs);
         this.createChart();
       });
 
-    dragHandler(select(node).selectAll("rect"));
+    //TODO: Re-enable dragging
+    //dragHandler(select(node).selectAll("rect"));
   };
 
   render() {
@@ -351,7 +462,7 @@ class WorkoutGraph extends Component {
           ref={(node) => (this.node = node)}
           width={this.props.width}
           height={this.props.height}
-          style={{ backgroundColor: "black", verticalAlign: "top" }}
+          style={{ backgroundColor: "rgb(0,0,0,.54)", verticalAlign: "top",borderRadius:"5px"}}
         ></svg>
       </div>
     );
@@ -363,8 +474,17 @@ const mapStateToProps = (state) => {
   const currentTime = getCurrentTime(state);
   const currentSong = getCurrentSong(state);
   const musicFiles = getMusicFiles(state);
+  const intervals = getIntervals(state);
 
-  return { musicFiles, totalDuration, currentTime, currentSong };
+  return { musicFiles, totalDuration, currentTime, currentSong, intervals };
 };
 
-export default connect(mapStateToProps)(WorkoutGraph);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onUpdateIntervalOrder: order => {
+      dispatch(updateIntervalOrder(order));
+    }
+  };
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(WorkoutGraph);
