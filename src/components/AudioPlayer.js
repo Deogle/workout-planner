@@ -13,15 +13,7 @@ class AudioPlayer extends React.Component {
 
     this.state = {
       playing: false,
-      buffLen: 0,
-      files: [
-        "./example_audio/tick.mp3",
-        "./example_audio/coffee_shop_tune.mp3"
-        // "./example_audio/low_fi_tune.mp3"
-      ] /** this is just for debugging, these should be from redux store */,
       tracks: [],
-      dataArrays: [],
-      analysers: [],
       currTrack: 0,
       percentTime: 0,
       duration: 0,
@@ -45,9 +37,6 @@ class AudioPlayer extends React.Component {
       {
         canvasCtx: ctx,
         playerCanvasCtx: playerCanvasCtx
-      },
-      () => {
-        this.loadTracks();
       }
     );
   }
@@ -57,13 +46,15 @@ class AudioPlayer extends React.Component {
     if(this.state.tracks.length !== this.props.musicFiles.length){
       this.loadTracks();
     }
+    for(var i = 0; i< this.state.tracks.length;i++){
+      var track = this.state.tracks[i];
+      var musicFile = this.props.musicFiles
+    }
   }
 
   // TODO HIGH PRIORITY: testing
   loadTracks = () => {
     var tracks = [];
-    var analysers = [];
-    var dataArrays = [];
     //load tracks
     for (var track of this.props.musicFiles) {
       var audioElement = new Audio(track.resource_url);
@@ -77,30 +68,13 @@ class AudioPlayer extends React.Component {
       };
 
       var src = this.audioContext.createMediaElementSource(audioElement);
-      var analyser = this.audioContext.createAnalyser();
-
-      src.connect(analyser);
-
-      analyser.connect(this.audioContext.destination);
+      src.connect(this.audioContext.destination);
+      console.log(audioElement);
       tracks.push(audioElement);
-
-      analyser.fftSize = 256;
-      analyser.minDecibels = -90;
-      analyser.maxDecibels = -10;
-      analyser.smoothingTimeConstant = 0.99;
-
-      var buffLen = analyser.frequencyBinCount;
-      var dataArray = new Float32Array(buffLen);
-
-      dataArrays.push(dataArray);
-      analysers.push(analyser);
+      this.setState({
+        tracks:tracks
+      })
     }
-    this.setState({
-      tracks: tracks,
-      analysers: analysers,
-      dataArrays: dataArrays,
-      buffLen: buffLen
-    });
   };
 
   loadGraph = () => {
@@ -203,12 +177,8 @@ class AudioPlayer extends React.Component {
       //seek to percentage of track based on percentage x is of total timeline length
       var percentageTimeline = x - timeline_x;
       percentageTimeline = percentageTimeline / (timeline_width);
-
-      console.log(`clicked timeline! setting to ${percentageTimeline} percent of song`);
       this.seekTrack(percentageTimeline);
     }
-
-    console.log(`Clicked!: X:${x} Y:${y} `);
   };
 
   seekTrack = percentTime => {
@@ -217,37 +187,6 @@ class AudioPlayer extends React.Component {
       track.currentTime = (percentTime * track.duration);
     }
   }
-
-  draw = () => {
-    if (this.state.playing === true) {
-      requestAnimationFrame(this.draw);
-    }
-
-    var analyser = this.state.analysers[this.state.currTrack];
-    var dataArray = this.state.dataArrays[this.state.currTrack];
-    var bufferLen = this.state.buffLen;
-
-    if (!analyser) {
-      return;
-    }
-
-    analyser.getFloatFrequencyData(dataArray);
-    var canvasCtx = this.state.canvasCtx;
-    canvasCtx.fillStyle = "#414141";
-    canvasCtx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
-
-    var barWidth = (this.WIDTH / bufferLen) * 2.5;
-    var barHeight;
-    var x = 0;
-    for (var i = 0; i < bufferLen; i++) {
-      barHeight = (dataArray[i] / 2) * 2.5;
-      canvasCtx.fillStyle =
-        "rgb(" + (Math.abs(barHeight * 1.5) + 50) + ",50,50)";
-      canvasCtx.fillRect(x, this.HEIGHT - barHeight / 2, barWidth, barHeight);
-
-      x += barWidth + 1;
-    }
-  };
 
   // TODO: Testing
   playPause = () => {

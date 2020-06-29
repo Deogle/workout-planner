@@ -1,13 +1,13 @@
 import {
   ADD_AUDIO,
   REMOVE_AUDIO,
-  UPDATE_DURATION,
+  UPDATE_AUDIO_ORDER,
   SET_CURR_SONG,
   SET_CURR_TIME,
   ADD_INTERVAL,
   REMOVE_INTERVAL,
   UPDATE_INTERVAL,
-  UPDATE_INTERVAL_ORDER,
+  UPDATE_INTERVAL_ORDER
 } from "../actions";
 
 const initialState = {
@@ -42,6 +42,8 @@ const app = (state = initialState, action) => {
           (item, index) => item.filename !== action.payload.filename
         ),
       };
+    case UPDATE_AUDIO_ORDER:
+      return updateAudioOrderReducer(state,action);
     case SET_CURR_TIME:
       return {
         ...state,
@@ -66,18 +68,26 @@ const app = (state = initialState, action) => {
         ...state,
       };
     case UPDATE_INTERVAL_ORDER:
-      return updateIntervalOrder(state, action);
+      return updateIntervalOrderReducer(state, action);
     default:
       return state;
   }
 };
 
-const updateIntervalOrder = (state, action) => {
-  console.log("SORTING", action.payload.arr);
+const updateIntervalOrderReducer = (state, action) => {
   return {
     ...state,
     intervals: action.payload.arr.map((i) => state.intervals.slice()[i]),
   };
 };
+
+const updateAudioOrderReducer = (state,action) => {
+  var newMusicFiles = action.payload.arr.map((i)=>state.musicFiles.slice()[i])
+  return {
+    ...state,
+    musicFiles: newMusicFiles,
+    currentSong: newMusicFiles[0].filename
+  }
+}
 
 export default app;

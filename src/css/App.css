@@ -2,6 +2,7 @@ html, body {
   height: 100%;
   margin:0;
   font-family: Roboto;
+  color:#dfdfdf
 }
 
 h1 {
@@ -120,6 +121,9 @@ ul{
   font-size: 18pt;
   padding: 20px;
   border-bottom: 1px solid rgba(66, 66, 66, 0.514);
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
 }
 

@@ -4,7 +4,6 @@ import IntervalListItem from "./IntervalListItem";
 import { connect } from "react-redux";
 
 const IntervalList = (props) => {
-  console.log(props.intervals);
   return (
     <div className="navbar-list">
       {props.intervals && props.intervals.length > 0

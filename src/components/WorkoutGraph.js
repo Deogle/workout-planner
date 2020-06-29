@@ -319,7 +319,6 @@ class WorkoutGraph extends Component {
       var index = this.props.musicFiles.findIndex(
         (file) => file.filename === song.filename
       );
-      console.log(this.props.musicFiles[index]);
       var totalDur = this.props.totalDuration;
       var timeTotal = this.props.musicFiles
         .slice(0, index + 1)
@@ -341,7 +340,6 @@ class WorkoutGraph extends Component {
       var song_prev_x = calculateSongLine(this.props.musicFiles[index-1]);
       var curr_x = calculateSongLine(this.props.musicFiles[index]);
       var text_x = ((curr_x-song_prev_x)/2)+song_prev_x
-      console.log(text_x)
       return text_x
     }
 
@@ -368,7 +366,6 @@ class WorkoutGraph extends Component {
       .attr("fill", "white");
 
     //draw song deliniation lines
-    console.log(this.props.musicFiles);
     select(node).selectAll("text").remove();
     for (var song of this.props.musicFiles) {
       var x_val = calculateSongLine(song)+1;
@@ -433,7 +430,6 @@ class WorkoutGraph extends Component {
           if(a.id === this.props.intervals[curr_id.split("-")[1]].id){
             return event.x - b_x;
           } else if(b.id === this.props.intervals[curr_id.split("-")[1]].id){
-            console.log("A_X:",a_x, "NEW_X:",event.x);
             return a_x - event.x;
           } else {
             return a_x - b_x
@@ -445,8 +441,6 @@ class WorkoutGraph extends Component {
           var idx = this.props.intervals.findIndex(interval=>{return interval.id === datum.id});
           new_idxs.push(idx);
         }
-        console.log(this.props.intervals);
-        console.log(new_idxs);
         this.props.onUpdateIntervalOrder(new_idxs);
         this.createChart();
       });
