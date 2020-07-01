@@ -49,10 +49,15 @@ class MusicFileInput extends React.Component {
           filename:audio.filename,
         });
       }
+      //prevent duplicates
+      if(this.props.musicFiles.find((item,index)=>{return item.filename === file.name})){
+        return;
+      }
       this.props.onAddAudio(audio);
       this.props.onAddInterval({
+        filename:file.name,
         duration: audio_obj.duration,
-        intensity: Math.random() * 100,
+        intensity: 20,
       });
     };
     return audio;

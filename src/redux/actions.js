@@ -35,7 +35,7 @@ export const updateAudioOrder = order => {
  * interval action creators
  */
 export const addInterval = interval => {
-    return {type: ADD_INTERVAL, payload:{id:uuidv4(),intensity:interval.intensity,duration:interval.duration,cues:""}}
+    return {type: ADD_INTERVAL, payload:{filename:interval.filename,id:uuidv4(),intensity:interval.intensity,duration:interval.duration,cues:""}}
 }
 export const removeInterval = interval => {
     return {type: REMOVE_INTERVAL, payload:{id:interval.id}}

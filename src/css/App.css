@@ -149,9 +149,10 @@ ul{
   display: flex;
   justify-content: space-between;
   list-style: none;
-  background-color: rgba(128, 128, 128, 0.54);
-  font-size: 17pt;
-  padding: 20px;
+  background-color: rgb(128, 128, 128,0.32);
+  font-size: 13pt;
+  margin-left: 40px;
+  padding: 5px;
 }
 
 .interval-list-item > span {

@@ -15,7 +15,7 @@ const MusicListContainer = (props) => {
         idxs = arrayMove(idxs,oldIndex,newIndex)
         props.onUpdateAudioOrder(idxs);
     }
-    return <MusicList onSortEnd={onSortEnd} {...props}/>
+    return <MusicList distance={1} onSortEnd={onSortEnd} {...props}/>
 }
 
 const MusicList = SortableContainer((props) => {
@@ -26,7 +26,7 @@ const MusicList = SortableContainer((props) => {
           <MusicFileListItem
             key={`music-file-${index}`}
             index={index}
-            filename={file.filename}
+            file={file}
           />
         );
       })}

@@ -12,7 +12,6 @@ import {
 
 const initialState = {
   musicFiles: [],
-  intervals: [],
   totalDuration: 0,
   currentSong: undefined,
   currentTime: undefined,
@@ -31,6 +30,7 @@ const app = (state = initialState, action) => {
             filename: action.payload.filename,
             resource_url: action.payload.resource_url,
             duration: action.payload.duration,
+            intervals: []
           }),
         };
       return state;
@@ -55,10 +55,7 @@ const app = (state = initialState, action) => {
         currentSong: action.payload.filename,
       };
     case ADD_INTERVAL:
-      return {
-        ...state,
-        intervals: state.intervals.concat(action.payload),
-      };
+      return addIntervalReducer(state,action);
     case REMOVE_INTERVAL:
       return {
         ...state,
@@ -87,6 +84,22 @@ const updateAudioOrderReducer = (state,action) => {
     ...state,
     musicFiles: newMusicFiles,
     currentSong: newMusicFiles[0].filename
+  }
+}
+
+const addIntervalReducer = (state,action)=>{
+  var indexOfMusicFile = state.musicFiles.findIndex((file) => file.filename === action.payload.filename)
+  return {
+    ...state,
+    musicFiles:state.musicFiles.map((item,index)=>{
+      if(index !== indexOfMusicFile){
+        return item;
+      }
+      return {
+        ...item,
+        intervals:item.intervals.concat(action.payload)
+      }
+    })
   }
 }
 

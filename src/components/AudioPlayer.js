@@ -50,12 +50,18 @@ class AudioPlayer extends React.Component {
         return i1.src.split("/")[4] === i2.filename;
       })
     ) {
+      if(this.state.playing){
+        this.playPause();
+      }
       this.loadTracks();
     }
   }
 
   // TODO HIGH PRIORITY: testing
   loadTracks = () => {
+    this.audioContext.close();
+    this.audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
     var tracks = [];
     //load tracks
     for (var track of this.props.musicFiles) {
