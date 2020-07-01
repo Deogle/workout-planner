@@ -28,7 +28,8 @@ h1 {
   flex-direction: column;
   align-items: center;
   max-width: 500px;
-  max-height: 95%;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .navbar-tabs{
@@ -111,13 +112,14 @@ ul{
 .music-file-list{
   width: 100%;
   max-width: 100%;
+  overflow: auto;
 }
 
 .music-file-list-item{
   display: flex;
   justify-content: space-between;
   list-style: none;
-  background-color: rgba(128, 128, 128, 0.54);
+  background-color: rgba(128, 128, 128, 0.32);
   font-size: 18pt;
   padding: 20px;
   border-bottom: 1px solid rgba(66, 66, 66, 0.514);
@@ -137,7 +139,7 @@ ul{
 }
 
 .music-file-list-item:hover{
-  background-color: rgba(128, 128, 128, 0.87);
+  background-color: rgba(128, 128, 128, 0.54);
 }
 
 .music-file-list-item > span {
@@ -146,17 +148,53 @@ ul{
 
 
 .interval-list-item{
+  position: relative;
   display: flex;
   justify-content: space-between;
   list-style: none;
   background-color: rgb(128, 128, 128,0.32);
   font-size: 13pt;
   margin-left: 40px;
-  padding: 5px;
+  top: 0px;
+  left: 0px;
+}
+
+.interval-list-item > div {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+}
+
+.interval-edit-icon{
+  opacity: 54%;
+  /* display: none; */
+  width: 20px;
+  position: absolute;
+  margin-top:10px;
+  right: 15px;  
+}
+
+.interval-edit-icon:hover{
+  opacity: 87%;
 }
 
 .interval-list-item > span {
   cursor: default;
+}
+
+.interval-list-item-input {
+  font-family: Roboto;
+  padding:0px;
+  font-size: 13pt;
+  background-color: transparent;
+  border: none;
+  color: #dfdfdf;
+}
+
+textarea.interval-list-item-input {
+  border: 1px solid #dfdfdf;
+  width: 100%;
+  resize:none;
 }
 
 ::-webkit-scrollbar {

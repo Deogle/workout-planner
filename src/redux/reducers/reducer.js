@@ -9,6 +9,7 @@ import {
   UPDATE_INTERVAL,
   UPDATE_INTERVAL_ORDER
 } from "../actions";
+import { act } from "react-dom/test-utils";
 
 const initialState = {
   musicFiles: [],
@@ -62,15 +63,37 @@ const app = (state = initialState, action) => {
         ...state,
       };
     case UPDATE_INTERVAL:
-      return {
-        ...state,
-      };
+      return updateIntervalReducer(state,action);
     case UPDATE_INTERVAL_ORDER:
       return updateIntervalOrderReducer(state, action);
     default:
       return state;
   }
 };
+
+const updateIntervalReducer = (state,action) => {
+  return {
+    ...state,
+    musicFiles:state.musicFiles.map((item)=>{
+      if(item.intervals.length === 1 && item.intervals[0].id === action.payload.id){
+        return {
+          ...item,
+          intervals:[action.payload]
+        }
+      }
+      for(var i = 0; i < item.intervals.length; i++){
+        if(item.intervals[i].id === action.payload.id){
+          return {
+            ...item,
+            intervals:[...item.intervals.slice(0,i),action.payload,item.intervals.slice(i+1)]
+          }
+        } else {
+          return item
+        }
+      }
+    })
+  }
+}
 
 const updateIntervalOrderReducer = (state, action) => {
   return {
