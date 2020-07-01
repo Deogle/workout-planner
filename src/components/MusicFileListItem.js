@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PlayArrow from "../img/play_arrow-white-18dp.svg";
 import DeleteIcon from "../img/clear-white-18dp.svg"
 import IntervalListItem from "../components/IntervalListItem";
-import { removeAudio } from "../redux/actions";
+import { removeAudio, setCurrentSong } from "../redux/actions";
 import { getMusicFiles, getCurrentSong } from "../redux/selectors";
 import { SortableElement } from "react-sortable-hoc";
 
@@ -19,11 +19,13 @@ const MusicFileListItem = SortableElement((props) => {
         }
       >
         <li className="music-file-list-item">
-          <img onClick={()=>{changeShowDetails(!showDetails)}} alt="show details" src={PlayArrow}/>
+          <img style={showDetails ? {transform:"rotate(90deg)"} : {}} onClick={()=>{changeShowDetails(!showDetails)}} alt="show details" src={PlayArrow}/>
           <span>{props.file.filename.split(".")[0]}</span>
           <img
             onClick={() => {
               props.onRemoveAudio({ filename: props.file.filename });
+              //make next song the current song
+              props.onSetCurrentSong(props.musicFiles[(props.musicFiles.findIndex(el=>el.filename === props.file.filename))+1])
             }}
             alt="remove song"
             src={DeleteIcon}
@@ -34,7 +36,7 @@ const MusicFileListItem = SortableElement((props) => {
       <div style={showDetails ? {}:{display:"none"}}>
         {props.file
           ? props.file.intervals.map((interval, index) => {
-              return <IntervalListItem interval={interval} />;
+              return <IntervalListItem key={`interval_${index}`} interval={interval} />;
             })
           : null}
       </div>
@@ -51,9 +53,11 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onRemoveAudio: (file) => {
-      console.log(`removing ${file}`);
       dispatch(removeAudio(file));
     },
+    onSetCurrentSong: (file) => {
+      dispatch(setCurrentSong(file))
+    }
   };
 };
 

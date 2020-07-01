@@ -9,8 +9,7 @@ import {
 } from "../redux/selectors";
 import { scaleLinear } from "d3-scale";
 import { scaleThreshold } from "d3-scale";
-import { select, event } from "d3-selection";
-import { drag } from "d3-drag";
+import { select } from "d3-selection";
 import { updateIntervalOrder } from "../redux/actions";
 
 class WorkoutGraph extends Component {
@@ -415,11 +414,10 @@ class WorkoutGraph extends Component {
       .attr("width", (d) => calculateWidth(d));
 
     //setup click and drag events
-    var curr_id = "";
     select(node)
       .selectAll("rect")
       .on("mousedown", (d, i) => {
-        curr_id = event.target.id;
+        // var curr_id = event.target.id;
       })
       .on("click", (d, i) => {
         this.createChart();
