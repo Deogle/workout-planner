@@ -9,8 +9,7 @@ import {
 } from "../redux/selectors";
 import { scaleLinear } from "d3-scale";
 import { scaleThreshold } from "d3-scale";
-import { select, event } from "d3-selection";
-import { drag } from "d3-drag";
+import { select } from "d3-selection";
 import { updateIntervalOrder } from "../redux/actions";
 
 class WorkoutGraph extends Component {
@@ -45,17 +44,31 @@ class WorkoutGraph extends Component {
   };
 
   createChart = () => {
+
     const node = this.node;
+
+    
+    var intervals_list = []
+    for(var file of this.props.musicFiles){
+      for(var interval of file.intervals){
+        intervals_list.push(interval);
+      }
+    }
+    
+    if(intervals_list.length === 0){
+      select(node).selectAll("*").remove();
+    }
+
     var sum = 0
     
-    for (var datum of this.props.intervals) {
+    for (var datum of intervals_list) {
       sum += datum.duration;
     }
 
-    if(this.props.intervals.length === 0){
+    if(intervals_list.length === 0){
       return;
     }
-    this.props.intervals.reduce((a, b) => {
+    intervals_list.reduce((a, b) => {
       if (a.intensity) {
         return Math.max(a.intensity, b.intensity);
       } else {
@@ -72,13 +85,13 @@ class WorkoutGraph extends Component {
     }
 
     const calculateRectX = index => {
-      if(!this.props.intervals[index]){
+      if(!intervals_list[index]){
         return
       }
       if(index===0){
         return 0;
       } else {
-        return calculateRectX(index-1)+calculateWidth(this.props.intervals[index-1]);
+        return calculateRectX(index-1)+calculateWidth(intervals_list[index-1]);
       }
     }
 
@@ -319,7 +332,6 @@ class WorkoutGraph extends Component {
       var index = this.props.musicFiles.findIndex(
         (file) => file.filename === song.filename
       );
-      console.log(this.props.musicFiles[index]);
       var totalDur = this.props.totalDuration;
       var timeTotal = this.props.musicFiles
         .slice(0, index + 1)
@@ -341,7 +353,6 @@ class WorkoutGraph extends Component {
       var song_prev_x = calculateSongLine(this.props.musicFiles[index-1]);
       var curr_x = calculateSongLine(this.props.musicFiles[index]);
       var text_x = ((curr_x-song_prev_x)/2)+song_prev_x
-      console.log(text_x)
       return text_x
     }
 
@@ -350,7 +361,7 @@ class WorkoutGraph extends Component {
       .range([0, this.props.size[1]]);
     select(node)
       .selectAll("rect")
-      .data(this.props.intervals)
+      .data(intervals_list)
       .enter()
       .append("rect")
       .attr("id", (d, i) => `rect-${i}`)
@@ -368,7 +379,6 @@ class WorkoutGraph extends Component {
       .attr("fill", "white");
 
     //draw song deliniation lines
-    console.log(this.props.musicFiles);
     select(node).selectAll("text").remove();
     for (var song of this.props.musicFiles) {
       var x_val = calculateSongLine(song)+1;
@@ -392,11 +402,11 @@ class WorkoutGraph extends Component {
       }
     }
 
-    //select(node).selectAll("rect").data(data).exit().remove();
+    select(node).selectAll("rect").data(intervals_list).exit().remove();
 
     select(node)
       .selectAll("rect")
-      .data(this.props.intervals)
+      .data(intervals_list)
       .attr("style", (d) => `fill:${calculateColor(d.intensity)}`)
       .attr("x", (d, i) => {return calculateRectX(i)})
       .attr("y", (d) => this.props.size[1] - yScale(d.intensity))
@@ -404,53 +414,48 @@ class WorkoutGraph extends Component {
       .attr("width", (d) => calculateWidth(d));
 
     //setup click and drag events
-    var curr_id = "";
     select(node)
       .selectAll("rect")
       .on("mousedown", (d, i) => {
-        curr_id = event.target.id;
+        // var curr_id = event.target.id;
       })
       .on("click", (d, i) => {
         this.createChart();
       });
     //drag handler - TODO: always bring dragged element to front
-    var dragHandler = drag()
-      .on("drag", (d) => {
-        var id = curr_id;
-        if (curr_id)
-          select(node)
-            .select(`#${id}`)
-            .attr("x", (d, i) => event.x);
-      })
-      .on("end", () => {
-        //check event x relative to other interval elements, rearrange array, and redraw
-        //dispatch resorting
-        var sorted = this.props.intervals.slice().sort((a, b) => {
+    // var dragHandler = drag()
+    //   .on("drag", (d) => {
+    //     var id = curr_id;
+    //     if (curr_id)
+    //       select(node)
+    //         .select(`#${id}`)
+    //         .attr("x", (d, i) => event.x);
+    //   })
+    //   .on("end", () => {
+    //     //check event x relative to other interval elements, rearrange array, and redraw
+    //     //dispatch resorting
+    //     var sorted = this.props.intervals.slice().sort((a, b) => {
 
-          var a_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === a.id));
-          var b_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === b.id));
+    //       var a_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === a.id));
+    //       var b_x = calculateRectX(this.props.intervals.findIndex(interval=>interval.id === b.id));
 
-          if(a.id === this.props.intervals[curr_id.split("-")[1]].id){
-            return event.x - b_x;
-          } else if(b.id === this.props.intervals[curr_id.split("-")[1]].id){
-            console.log("A_X:",a_x, "NEW_X:",event.x);
-            return a_x - event.x;
-          } else {
-            return a_x - b_x
-          }
-        });
-        var new_idxs = [];
-        for(var datum of sorted){
-          // eslint-disable-next-line no-loop-func
-          var idx = this.props.intervals.findIndex(interval=>{return interval.id === datum.id});
-          new_idxs.push(idx);
-        }
-        console.log(this.props.intervals);
-        console.log(new_idxs);
-        this.props.onUpdateIntervalOrder(new_idxs);
-        this.createChart();
-      });
-
+    //       if(a.id === this.props.intervals[curr_id.split("-")[1]].id){
+    //         return event.x - b_x;
+    //       } else if(b.id === this.props.intervals[curr_id.split("-")[1]].id){
+    //         return a_x - event.x;
+    //       } else {
+    //         return a_x - b_x
+    //       }
+    //     });
+    //     var new_idxs = [];
+    //     for(var datum of sorted){
+    //       // eslint-disable-next-line no-loop-func
+    //       var idx = this.props.intervals.findIndex(interval=>{return interval.id === datum.id});
+    //       new_idxs.push(idx);
+    //     }
+    //     this.props.onUpdateIntervalOrder(new_idxs);
+    //     this.createChart();
+    //   });
     //TODO: Re-enable dragging
     //dragHandler(select(node).selectAll("rect"));
   };

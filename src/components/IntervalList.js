@@ -1,10 +1,10 @@
 import React from "react";
-import { getIntervals } from "../redux/selectors";
+import { getMusicFiles } from "../redux/selectors";
+
 import IntervalListItem from "./IntervalListItem";
 import { connect } from "react-redux";
 
 const IntervalList = (props) => {
-  console.log(props.intervals);
   return (
     <div className="navbar-list">
       {props.intervals && props.intervals.length > 0
@@ -22,8 +22,14 @@ const IntervalList = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const intervals = getIntervals(state);
-  return { intervals };
+  const musicFiles = getMusicFiles(state);
+  var intervals = []
+  for(var file of musicFiles){
+    for(var interval of file.intervals){
+      intervals.push(interval)
+    }
+  }
+  return { musicFiles, intervals };
 };
 
 export default connect(mapStateToProps)(IntervalList);
