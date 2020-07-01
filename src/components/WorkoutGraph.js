@@ -456,7 +456,6 @@ class WorkoutGraph extends Component {
     //     this.props.onUpdateIntervalOrder(new_idxs);
     //     this.createChart();
     //   });
-
     //TODO: Re-enable dragging
     //dragHandler(select(node).selectAll("rect"));
   };

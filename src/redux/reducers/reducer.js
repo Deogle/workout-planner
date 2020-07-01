@@ -12,6 +12,7 @@ import {
 
 const initialState = {
   musicFiles: [],
+  intervals: [],
   totalDuration: 0,
   currentSong: undefined,
   currentTime: undefined,

@@ -43,7 +43,6 @@ export const removeInterval = interval => {
 export const updateInterval = interval => {
     return {type: UPDATE_INTERVAL, payload:{id:interval.id,intensity:interval.intensity,duration:interval.duration,cues:interval.cues}}
 }
-
 export const updateIntervalOrder = order => {
     return {type: UPDATE_INTERVAL_ORDER, payload:{arr:order}}
 }
